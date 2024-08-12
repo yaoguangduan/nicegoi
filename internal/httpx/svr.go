@@ -3,10 +3,10 @@ package httpx
 import (
 	"embed"
 	"fmt"
+	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"io/fs"
 	"log"
 	"net/http"
-	"nicegoi/internal/ws"
 	"os/exec"
 	"runtime"
 	"time"

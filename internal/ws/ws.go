@@ -3,9 +3,9 @@ package ws
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/yaoguangduan/nicegoi/internal/msgs"
 	"log"
 	"net/http"
-	"nicegoi/internal/msgs"
 	"sync"
 )
 

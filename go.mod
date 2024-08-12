@@ -1,4 +1,4 @@
-module nicegoi
+module github.com/yaoguangduan/nicegoi
 
 go 1.22
 

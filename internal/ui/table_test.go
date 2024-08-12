@@ -3,7 +3,7 @@ package ui
 import (
 	"encoding/json"
 	"fmt"
-	"nicegoi/internal/ui/menu"
+	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
 	"testing"
 )
 

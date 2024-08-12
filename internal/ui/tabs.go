@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"nicegoi/internal/ui/icons"
-	"nicegoi/internal/ui/place"
+	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
+	"github.com/yaoguangduan/nicegoi/internal/ui/place"
 )
 
 type Tab struct {

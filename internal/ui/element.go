@@ -3,11 +3,11 @@ package ui
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/yaoguangduan/nicegoi/internal/httpx"
+	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/util"
+	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"log"
-	"nicegoi/internal/httpx"
-	"nicegoi/internal/msgs"
-	"nicegoi/internal/util"
-	"nicegoi/internal/ws"
 	"slices"
 )
 

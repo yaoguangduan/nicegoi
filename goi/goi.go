@@ -1,8 +1,8 @@
 package goi
 
 import (
-	"nicegoi/internal/ui"
-	"nicegoi/internal/ui/menu"
+	"github.com/yaoguangduan/nicegoi/internal/ui"
+	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
 	"time"
 )
 

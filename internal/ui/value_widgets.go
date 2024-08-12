@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"nicegoi/internal/msgs"
-	"nicegoi/internal/ui/icons"
-	"nicegoi/internal/ws"
+	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
+	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"time"
 )
 

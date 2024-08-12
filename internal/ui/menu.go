@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"nicegoi/internal/msgs"
-	"nicegoi/internal/ui/menu"
-	"nicegoi/internal/ws"
+	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
+	"github.com/yaoguangduan/nicegoi/internal/ws"
 )
 
 type Menu struct {

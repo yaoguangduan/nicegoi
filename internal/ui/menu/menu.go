@@ -1,6 +1,6 @@
 package menu
 
-import "nicegoi/internal/ui/icons"
+import "github.com/yaoguangduan/nicegoi/internal/ui/icons"
 
 type Option struct {
 	Collapse  bool                                 `json:"collapse"`

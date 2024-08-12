@@ -1,6 +1,6 @@
 package ui
 
-import "nicegoi/internal/ui/align"
+import "github.com/yaoguangduan/nicegoi/internal/ui/align"
 
 type Box struct {
 	opt IElement

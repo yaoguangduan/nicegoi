@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/gofrs/uuid"
-	"nicegoi/goi"
-	"nicegoi/internal/ui"
-	"nicegoi/internal/ui/align"
-	"nicegoi/internal/ui/icons"
-	"nicegoi/internal/ui/menu"
-	"nicegoi/internal/ui/place"
+	"github.com/yaoguangduan/nicegoi/goi"
+	"github.com/yaoguangduan/nicegoi/internal/ui"
+	"github.com/yaoguangduan/nicegoi/internal/ui/align"
+	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
+	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
+	"github.com/yaoguangduan/nicegoi/internal/ui/place"
 	"time"
 )
 
