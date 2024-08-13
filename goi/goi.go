@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func Button(name string, onClick func(self *ui.GoiButton)) *ui.GoiButton {
-	return ui.NewGoiButton(name, onClick)
+func Button(name string, onClick func(self *ui.Button)) *ui.Button {
+	return ui.NewButton(name, onClick)
 }
 
 func Link(text string) *ui.Link {
@@ -50,28 +50,28 @@ func NotifyWarn(title, text string) {
 func NotifyError(title, text string) {
 	ui.Notify(3, title, text)
 }
-func Label(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(0, text)
+func Label(text string) *ui.Label {
+	return ui.NewLabel(0, text)
 }
-func H1(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(1, text)
+func H1(text string) *ui.Label {
+	return ui.NewLabel(1, text)
 }
-func H2(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(2, text)
+func H2(text string) *ui.Label {
+	return ui.NewLabel(2, text)
 }
-func H3(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(3, text)
+func H3(text string) *ui.Label {
+	return ui.NewLabel(3, text)
 }
-func H4(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(4, text)
+func H4(text string) *ui.Label {
+	return ui.NewLabel(4, text)
 }
-func H5(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(5, text)
+func H5(text string) *ui.Label {
+	return ui.NewLabel(5, text)
 }
-func H6(text string) *ui.GoiLabel {
-	return ui.NewGoiLabel(6, text)
+func H6(text string) *ui.Label {
+	return ui.NewLabel(6, text)
 }
-func Checkbox(state bool, text string) *ui.GoiCheckbox {
+func Checkbox(state bool, text string) *ui.Checkbox {
 	return ui.NewCheckbox(state, text)
 }
 func Radio(selected string, items ...string) *ui.Radio {
@@ -112,6 +112,12 @@ func Description(cols int, data interface{}) *ui.Description {
 }
 func Badge(count int) *ui.Badge {
 	return ui.NewBadge(count)
+}
+func Divider() *ui.Divider {
+	return ui.NewDivider()
+}
+func Row(items ...ui.IWidget) *ui.Row {
+	return ui.NewRow(items...)
 }
 func Run() {
 	ui.Run()

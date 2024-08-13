@@ -9,19 +9,52 @@ import (
 
 //========================label=========================
 
-type GoiLabel struct {
+type Label struct {
 	*valueWidget
 }
 
-func (gb *GoiLabel) SetText(text string) {
+func (gb *Label) SetText(text string) *Label {
 	gb.set(text)
+	return gb
 }
 
-func NewGoiLabel(level int, text string) *GoiLabel {
+func NewLabel(level int, text string) *Label {
 	vw := newValueWidget("label", text)
 	vw.opt.Set("level", level)
-	l := &GoiLabel{valueWidget: vw}
+	l := &Label{valueWidget: vw}
 	return l
+}
+
+//========================divider=========================
+
+type Divider struct {
+	*valueWidget
+}
+
+func (d *Divider) SetText(text string) *Divider {
+	d.set(text)
+	return d
+}
+
+func NewDivider() *Divider {
+	vw := newValueWidget("divider", "")
+	vw.opt.Set("layout", "horizontal")
+	vw.opt.Set("align", "left")
+	l := &Divider{valueWidget: vw}
+	return l
+}
+
+func (d *Divider) Vertical() *Divider {
+	d.opt.Set("layout", "vertical")
+	return d
+}
+func (d *Divider) AlignCenter() *Divider {
+	d.opt.Set("align", "center")
+	return d
+}
+func (d *Divider) AlignRight() *Divider {
+	d.opt.Set("align", "right")
+	return d
 }
 
 //========================link=========================
@@ -63,24 +96,24 @@ func NewLink(text string) *Link {
 
 //========================button=========================
 
-type GoiButton struct {
+type Button struct {
 	*valueWidget
-	onClick func(self *GoiButton)
+	onClick func(self *Button)
 }
 
-func (gb *GoiButton) SetText(text string) {
+func (gb *Button) SetText(text string) {
 	gb.opt.Set("value", text)
 }
-func (gb *GoiButton) SetIcon(icon icons.Icon) *GoiButton {
+func (gb *Button) SetIcon(icon icons.Icon) *Button {
 	gb.opt.Set("icon", icon)
 	return gb
 }
-func (gb *GoiButton) SetOnClick(f func(self *GoiButton)) {
+func (gb *Button) SetOnClick(f func(self *Button)) {
 	gb.onClick = f
 }
 
-func NewGoiButton(text string, onClick func(self *GoiButton)) *GoiButton {
-	btn := &GoiButton{valueWidget: newValueWidget("button", text), onClick: onClick}
+func NewButton(text string, onClick func(self *Button)) *Button {
+	btn := &Button{valueWidget: newValueWidget("button", text), onClick: onClick}
 	ws.RegMsgHandle(btn.opt.Eid(), func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
@@ -91,18 +124,18 @@ func NewGoiButton(text string, onClick func(self *GoiButton)) *GoiButton {
 
 //========================checkbox=========================
 
-type GoiCheckbox struct {
+type Checkbox struct {
 	*valueWidget
-	onChange func(self *GoiCheckbox, v bool)
+	onChange func(self *Checkbox, v bool)
 }
 
-func NewCheckbox(state bool, text string) *GoiCheckbox {
-	c := &GoiCheckbox{valueWidget: newValueWidget("checkbox", state)}
+func NewCheckbox(state bool, text string) *Checkbox {
+	c := &Checkbox{valueWidget: newValueWidget("checkbox", state)}
 	c.opt.Set("text", text)
 	return c
 }
 
-func (c *GoiCheckbox) OnChange(f func(self *GoiCheckbox, checked bool)) *GoiCheckbox {
+func (c *Checkbox) OnChange(f func(self *Checkbox, checked bool)) *Checkbox {
 	c.onValChange(func(v any) {
 		if f != nil {
 			f(c, v.(bool))

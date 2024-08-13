@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/yaoguangduan/nicegoi/goi"
 	"github.com/yaoguangduan/nicegoi/internal/ui"
+	"github.com/yaoguangduan/nicegoi/internal/ui/align"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
 	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
 	"github.com/yaoguangduan/nicegoi/internal/ui/place"
@@ -21,6 +22,97 @@ func main() {
 	card.AddFooters(goi.Link("add"), goi.Link("Setting"))
 	card.SetTitle("card title")
 
+	tab := ui.NewTab().SetPlace(place.Left)
+
+	loading := ui.NewLoading("loading...")
+	fullLoading := ui.NewLoading("loadingAll...").FullScreen()
+
+	goi.Divider().SetText("button")
+	goi.Box(
+		goi.H6("Button:"),
+		goi.Button("button", func(self *ui.Button) {
+			goi.MsgSuccess("been clicked")
+		}),
+		goi.Divider().Vertical(),
+		goi.H6("with Icon:"),
+		goi.Button("Icon", nil).SetIcon(icons.Add),
+	)
+
+	goi.Divider().SetText("input:")
+	goi.Box(
+		goi.H6("Input:"),
+		goi.Input(func(ctx *ui.Input, val string) {
+			goi.MsgWarn(fmt.Sprintf("you input:%s", val))
+		}),
+		goi.Divider().Vertical(),
+		goi.H6("with prefix/suffix:"),
+		goi.Input(nil).SetPrepend("https://").SetAppend(".com"),
+		goi.Divider().Vertical(),
+		goi.H6("with icon:"),
+		goi.Input(nil).SetIcon(icons.ArrowRight).PlaceHolder("example.com"),
+		goi.Divider().Vertical(),
+		goi.H6("password:"),
+		goi.Input(nil).EnablePassword(),
+	)
+
+	goi.Divider().SetText("link")
+	goi.Box(
+		goi.H6("link:"),
+		goi.Link("点击").SetOnClick(func(self *ui.Link) {
+			goi.NotifySuccess("I am Title", "you clicked link!")
+		}),
+		goi.Divider().Vertical(),
+		goi.H6("with icon:"),
+		goi.Link("跳转链接").SetPrefixIcon(icons.Link).SetHref("https://google.com"),
+	)
+
+	goi.Divider().SetText("card")
+	goi.Box(
+		goi.H6("Card:"),
+		card)
+
+	goi.Divider().SetText("checkbox")
+	goi.Box(
+		goi.H6("checkbox:"),
+		goi.Checkbox(true, "check me").OnChange(func(self *ui.Checkbox, checked bool) {
+			goi.MsgInfo(fmt.Sprintf("checkbox change:%v", checked))
+		}))
+
+	goi.Divider().SetText("radio")
+	radio := goi.Radio("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Radio, selected string) {
+		goi.MsgSuccess(fmt.Sprintf("you has selected %s", selected))
+	})
+	goi.Box(
+		goi.H6("radio:"),
+		radio)
+
+	goi.Divider().SetText("select")
+	goi.Box(
+		goi.H6("select:"),
+		goi.Select("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Select, selected string) {
+			goi.MsgWarn("radio will change!")
+			radio.Select(selected)
+		}))
+
+	goi.Divider().SetText("switch")
+	goi.Box(
+		goi.H6("switch:"),
+		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			goi.MsgWarn(fmt.Sprintf("switch on:%v", on))
+		}))
+
+	goi.Divider().SetText("datetime")
+	goi.Box(
+		goi.H6("datetime:"),
+		goi.DateTime(time.Now()).OnChange(func(self *ui.DateTime, datetime time.Time, err error) {
+			if err != nil {
+				goi.MsgError("datetime err:" + err.Error())
+			} else {
+				goi.MsgSuccess("datetime changed:" + datetime.Format("2006-01-02 15:04:05"))
+			}
+		}))
+
+	goi.Divider().SetText("list")
 	l := goi.List()
 	item1 := ui.NewListItem("list item 1").AddAction(goi.Link("operate 1").SetOnClick(func(self *ui.Link) {
 		goi.MsgInfo("item 1 operated")
@@ -29,10 +121,11 @@ func main() {
 		goi.MsgInfo("item 2 operated")
 	}))
 	l.AddItems(item1, item2)
-	radio := goi.Radio("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Radio, selected string) {
-		goi.MsgSuccess(fmt.Sprintf("you has selected %s", selected))
-	})
+	goi.Box(
+		goi.H6("list:"),
+		l)
 
+	goi.Divider().SetText("menu")
 	m := menu.New().AddItems(
 		menu.NewItem("MenuOption 1", "m1").SetIcon(icons.Home).AddItems(menu.NewItem("MenuOption 1-1", "m11"), menu.NewItem("MenuOption 1-2", "m12")),
 		menu.NewItem("MenuOption 2", "m2").SetIcon(icons.Edit),
@@ -43,80 +136,11 @@ func main() {
 			item.Label = v4.String()[0:5]
 		}
 	})
-
-	tab := ui.NewTab().SetPlace(place.Left)
-
-	loading := ui.NewLoading("loading...")
-	fullLoading := ui.NewLoading("loadingAll...").FullScreen()
-	p0 := goi.Progress(20)
-	p := goi.Progress(20).CircleStyle()
-
-	badge := goi.Badge(29)
-	goi.Box(
-		goi.H6("Button:"),
-		goi.Button("button", func(self *ui.GoiButton) {
-			goi.MsgSuccess("been clicked")
-		}),
-		goi.Button("Icon", nil).SetIcon(icons.Add),
-	)
-	goi.Box(
-		goi.H6("Input:"),
-		goi.Input(func(ctx *ui.Input, val string) {
-			goi.MsgWarn(fmt.Sprintf("you input:%s", val))
-		}),
-		goi.Input(nil).SetPrepend("https://").SetAppend(".com"),
-		goi.Input(nil).SetIcon(icons.ArrowRight).PlaceHolder("example.com"),
-		goi.Input(nil).EnablePassword(),
-	).WithSeparator()
-	goi.Box(
-		goi.H6("Link:"),
-		goi.Link("点击").SetOnClick(func(self *ui.Link) {
-			goi.NotifySuccess("I am Title", "you clicked link!")
-		}),
-		goi.Link("跳转链接").SetPrefixIcon(icons.Link).SetHref("https://google.com"),
-	).WithSeparator()
-	goi.Box(
-		goi.H5("Card:"),
-		card)
-	goi.Box(
-		goi.H5("checkbox:"),
-		goi.Checkbox(true, "check me").OnChange(func(self *ui.GoiCheckbox, checked bool) {
-			goi.MsgInfo(fmt.Sprintf("checkbox change:%v", checked))
-		}))
-
-	goi.Box(
-		goi.H5("radio:"),
-		radio)
-
-	goi.Box(
-		goi.H5("select:"),
-		goi.Select("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Select, selected string) {
-			goi.MsgWarn("radio will change!")
-			radio.Select(selected)
-		}))
-
-	goi.Box(
-		goi.H5("switch:"),
-		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
-			goi.MsgWarn(fmt.Sprintf("switch on:%v", on))
-		}))
-
-	goi.Box(
-		goi.H5("datetime:"),
-		goi.DateTime(time.Now()).OnChange(func(self *ui.DateTime, datetime time.Time, err error) {
-			if err != nil {
-				goi.MsgError("datetime err:" + err.Error())
-			} else {
-				goi.MsgSuccess("datetime changed:" + datetime.Format("2006-01-02 15:04:05"))
-			}
-		}))
-
-	goi.Box(
-		goi.H5("list:"),
-		l)
 	goi.Box(goi.H6("menu:"), ui.NewMenu(m))
+
+	goi.Divider().SetText("tab")
 	goi.Box(
-		goi.H5("Tabs:"),
+		goi.H6("Tabs:"),
 		goi.Radio("left", "top", "left", "right", "bottom").OnChange(func(self *ui.Radio, selected string) {
 			tab.SetPlace(place.Placement(selected))
 		}),
@@ -128,7 +152,7 @@ func main() {
 			SetOnChange(func(key string, widget ui.IWidget) {
 				goi.MsgSuccess("tag change " + key)
 				if key == "button" {
-					b := widget.(*ui.GoiButton)
+					b := widget.(*ui.Button)
 					v4, err := uuid.NewGen().NewV4()
 					if err == nil {
 						b.SetText(v4.String()[0:5])
@@ -136,21 +160,27 @@ func main() {
 				}
 			}),
 	)
+
+	goi.Divider().SetText("table")
 	goi.Box(
-		goi.H5("table:"),
+		goi.H6("table:"),
 		ui.NewTable([]interface{}{menu.NewItem("label1", "value1"), menu.NewItem("label2", "value2")}),
 	)
+
+	goi.Divider().SetText("loading")
 	goi.Box(
-		goi.H5("Loading:"),
-		goi.Button("start/stop", func(self *ui.GoiButton) {
+		goi.H6("Loading:"),
+		goi.Button("start/stop", func(self *ui.Button) {
 			if loading.GetState() {
 				loading.Stop()
 			} else {
 				loading.Start()
 			}
 		}),
-		loading.AddItems(goi.Card("this is a long content for loading show")),
-		goi.Button("full screen loading", func(self *ui.GoiButton) {
+		loading.AddItems(goi.Card("this is a long content for loading show").SetWidth(300)),
+		goi.Divider().Vertical(),
+		goi.H6("full screen:"),
+		goi.Button("full screen loading", func(self *ui.Button) {
 			fullLoading.Start()
 			go func() {
 				time.Sleep(time.Second * 2)
@@ -159,28 +189,61 @@ func main() {
 		}),
 		fullLoading,
 	)
+
+	goi.Divider().SetText("progress")
+	p0 := goi.Progress(20)
+	p := goi.Progress(20).CircleStyle()
 	goi.Box(
-		goi.H5("progress:"),
+		goi.H6("progress:"),
 		p0,
-		goi.Button("add", func(self *ui.GoiButton) {
+		goi.Button("add", func(self *ui.Button) {
 			p0.Update(p0.Current() - 2)
 			p.Update(p.Current() + 2)
 		}),
 		p,
+		goi.Divider().Vertical(),
+		goi.H6("error:"),
 		goi.Progress(45).CircleStyle().MarkState(ui.ProgressError),
+		goi.Divider().Vertical(),
+		goi.H6("warning:"),
 		goi.Progress(45).CircleStyle().MarkState(ui.ProgressWarning),
 	)
+	goi.Divider().SetText("description")
+	goi.Description(2, map[string]string{"Name": "NceGoi", "Tel": "12288884444", "Area": "China SHangHai", "Address": "XUJIAHU DASHIJIE"})
+
+	goi.Divider().SetText("badge")
+	badge := goi.Badge(29)
 	goi.Box(
-		goi.H5("description:"),
-		goi.Description(2, map[string]string{"Name": "NceGoi", "Tel": "12288884444", "Area": "China SHangHai", "Address": "XUJIAHU DASHIJIE"}),
-	)
-	goi.Box(
-		goi.H5("Badge:"),
-		badge.SetChild(goi.Button("add", func(self *ui.GoiButton) {
+		goi.H6("Badge:"),
+		badge.SetChild(goi.Button("add", func(self *ui.Button) {
 			badge.Incr(1)
 		})),
 	)
 
+	goi.Divider().SetText("row")
+	goi.Label("default:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span4"))
+	goi.Label("with gutter:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span 4")).
+		SetGutter(10, 0)
+	goi.Label("with span:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 2"), goi.Input(nil).PlaceHolder("span 5"), goi.Input(nil).PlaceHolder("span 5")).
+		SetSpan(2, 5, 5)
+	goi.Label("with offset:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 4 offset 0"), goi.Input(nil).PlaceHolder("span 4 offset 4")).SetSpan(4, 4).
+		SetOffset(1, 4)
+
+	goi.H4("align:")
+	goi.Label("left:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span3")).SetSpan(3, 3, 3).Justify(align.RowLeft)
+	goi.Label("center:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span3")).SetSpan(3, 3, 3).Justify(align.RowCenter)
+	goi.Label("right:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span3")).SetSpan(3, 3, 3).Justify(align.RowRight)
+	goi.Label("space around:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span3")).SetSpan(3, 3, 3).Justify(align.RowSpaceAround)
+	goi.Label("space between:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span3")).SetSpan(3, 3, 3).Justify(align.RowSpaceBetween)
 	goi.Run()
 
 }

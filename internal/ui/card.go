@@ -13,18 +13,24 @@ func NewCardWithTitle(title string, content string) *GoiCard {
 	card.opt.AddChildren(NewEmptyWidget(card.opt.Eid()+"_F", "card_footer"))
 	return &card
 }
-func (w *GoiCard) SetTitle(title string) {
+func (w *GoiCard) SetTitle(title string) *GoiCard {
 	w.opt.Set("title", title)
+	return w
 }
 
-func (w *GoiCard) SetContent(content string) {
+func (w *GoiCard) SetContent(content string) *GoiCard {
 	w.opt.Set("content", content)
+	return w
 }
 
-func (w *GoiCard) SetDesc(desc string) {
+func (w *GoiCard) SetDesc(desc string) *GoiCard {
 	w.opt.Set("desc", desc)
+	return w
 }
-
+func (w *GoiCard) SetWidth(width int) *GoiCard {
+	w.opt.Set("width", width)
+	return w
+}
 func (w *GoiCard) AddActions(items ...IWidget) {
 	for _, item := range items {
 		w.opt.Children()[0].AddChildren(item)
