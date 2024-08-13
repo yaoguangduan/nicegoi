@@ -36,3 +36,15 @@ func main() {
 
 ###### buttons
 ![Button](./docs/buttons.png)
+###### inputs
+![Input](./docs/inputs.png)
+###### links
+![Link](./docs/links.png)
+###### tags
+![tag](./docs/tags.png)
+###### tag-input
+![ti](./docs/tag-inputs.png)
+###### progress
+![progress](./docs/progress.png)
+
+###### add more...
