@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
 	"github.com/yaoguangduan/nicegoi/internal/ws"
@@ -84,6 +85,10 @@ func (gb *Link) SetSuffixIcon(icon icons.Icon) *Link {
 	gb.e.Set("suffix_icon", icon)
 	return gb
 }
+func (gb *Link) SetTheme(theme option.Theme) *Link {
+	gb.e.Set("theme", theme)
+	return gb
+}
 
 func NewLink(text string) *Link {
 	btn := &Link{valuedWidget: newValuedWidget("link", text)}
@@ -92,6 +97,7 @@ func NewLink(text string) *Link {
 			btn.onClick(btn)
 		}
 	})
+	btn.e.Set("theme", option.Primary)
 	return btn
 }
 
@@ -112,7 +118,14 @@ func (gb *Button) SetIcon(icon icons.Icon) *Button {
 func (gb *Button) SetOnClick(f func(self *Button)) {
 	gb.onClick = f
 }
-
+func (gb *Button) SetTheme(theme option.Theme) *Button {
+	gb.e.Set("theme", theme)
+	return gb
+}
+func (gb *Button) SetVariant(variant option.Variant) *Button {
+	gb.e.Set("variant", variant)
+	return gb
+}
 func NewButton(text string, onClick func(self *Button)) *Button {
 	btn := &Button{valuedWidget: newValuedWidget("button", text), onClick: onClick}
 	ws.RegMsgHandle(btn.e.Eid(), func(msg *msgs.Message) {
@@ -120,6 +133,7 @@ func NewButton(text string, onClick func(self *Button)) *Button {
 			btn.onClick(btn)
 		}
 	})
+	btn.e.Set("theme", option.Primary)
 	return btn
 }
 
@@ -425,4 +439,37 @@ func (w *Timeline) Add(options ...*timeline.Option) *Timeline {
 	opts = append(opts, options...)
 	w.set(opts)
 	return w
+}
+
+//========================dropdown=========================
+
+type Dropdown struct {
+	*valuedWidget
+	f func(dropdown *Dropdown, value string)
+}
+
+func NewDropdown(text string, opts ...string) *Dropdown {
+	w := &Dropdown{valuedWidget: newValuedWidget("dropdown", "")}
+	w.e.Set("options", opts)
+	w.e.Set("text", text)
+	w.e.Set("theme", "primary")
+	w.e.Set("variant", "text")
+	return w
+}
+func (w *Dropdown) OnClick(f func(self *Dropdown, value string)) *Dropdown {
+	w.onValChange(func(v any) {
+		sv := v.(string)
+		if f != nil {
+			f(w, sv)
+		}
+	})
+	return w
+}
+func (gb *Dropdown) SetTheme(theme option.Theme) *Dropdown {
+	gb.e.Set("theme", theme)
+	return gb
+}
+func (gb *Dropdown) SetVariant(variant option.Variant) *Dropdown {
+	gb.e.Set("variant", variant)
+	return gb
 }

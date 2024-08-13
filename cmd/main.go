@@ -36,6 +36,12 @@ func main() {
 		goi.Divider().Vertical(),
 		goi.H6("with Icon:"),
 		goi.Button("Icon", nil).SetIcon(icons.Add),
+		goi.Divider().Vertical(),
+		goi.Button("Success", nil).SetTheme(option.Success),
+		goi.Divider().Vertical(),
+		goi.Button("Danger", nil).SetTheme(option.Danger),
+		goi.Divider().Vertical(),
+		goi.Button("Warning", nil).SetTheme(option.Warning),
 	)
 
 	goi.Divider().SetText("input:")
@@ -64,6 +70,27 @@ func main() {
 		goi.Divider().Vertical(),
 		goi.H6("with icon:"),
 		goi.Link("跳转链接").SetPrefixIcon(icons.Link).SetHref("https://google.com"),
+		goi.Divider().Vertical(),
+		goi.Link("Success").SetTheme(option.Success),
+		goi.Divider().Vertical(),
+		goi.Link("Danger").SetTheme(option.Danger),
+		goi.Divider().Vertical(),
+		goi.Link("Warning").SetTheme(option.Warning),
+	)
+	goi.Divider().SetText("dropdown")
+	goi.Box(
+		goi.Dropdown("more...", "option 1", "option 2", "option 3").OnClick(func(self *ui.Dropdown, value string) {
+			goi.MsgSuccess(fmt.Sprintf("you clicked:%s", value))
+		}),
+		goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Dashed).OnClick(func(self *ui.Dropdown, value string) {
+			goi.MsgSuccess(fmt.Sprintf("you clicked:%s", value))
+		}),
+		goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Base).OnClick(func(self *ui.Dropdown, value string) {
+			goi.MsgSuccess(fmt.Sprintf("you clicked:%s", value))
+		}),
+		goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Outline).OnClick(func(self *ui.Dropdown, value string) {
+			goi.MsgSuccess(fmt.Sprintf("you clicked:%s", value))
+		}),
 	)
 
 	goi.Divider().SetText("card")
@@ -228,6 +255,26 @@ func main() {
 		Add(timeline.Success("2024-10-21", "something success")).
 		Add(timeline.Warning("2024-11-01", "something warning").WithDetail("a detail description")).
 		Add(timeline.Error("2024-10-21", "something error"))
+
+	goi.Divider().SetText("drawer")
+	dr := goi.Drawer("Header").AddWidgets(goi.Label("drawer content"))
+	dl := goi.Drawer("Header").AddWidgets(goi.Label("drawer content")).SetPlace(option.Left)
+	dt := goi.Drawer("Header").AddWidgets(goi.Label("drawer content")).SetPlace(option.Top)
+	db := goi.Drawer("Header").AddWidgets(goi.Label("drawer content")).SetPlace(option.Bottom)
+	goi.Box(
+		goi.Button("right", func(self *ui.Button) {
+			dr.Open()
+		}),
+		goi.Button("left", func(self *ui.Button) {
+			dl.Open()
+		}),
+		goi.Button("top", func(self *ui.Button) {
+			dt.Open()
+		}),
+		goi.Button("bottom", func(self *ui.Button) {
+			db.Open()
+		}),
+	)
 
 	goi.Divider().SetText("row")
 	goi.Label("default:")

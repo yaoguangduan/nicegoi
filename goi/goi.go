@@ -124,6 +124,12 @@ func Row(items ...ui.IWidget) *ui.Row {
 func Timeline(opts ...*timeline.Option) *ui.Timeline {
 	return ui.NewTimeline(opts...)
 }
+func Drawer(header string) *ui.Drawer {
+	return ui.NewDrawer(header)
+}
+func Dropdown(text string, options ...string) *ui.Dropdown {
+	return ui.NewDropdown(text, options...)
+}
 func Run() {
 	ui.Run()
 }
