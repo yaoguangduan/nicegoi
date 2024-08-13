@@ -3,33 +3,33 @@ package ui
 import "github.com/yaoguangduan/nicegoi/internal/ui/align"
 
 type Row struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewRow(items ...IWidget) *Row {
-	w := &Row{newValueWidget("row", "")}
-	w.opt.AddChildren(items...)
+	w := &Row{newValuedWidget("row", "")}
+	w.e.AddChildren(items...)
 	return w
 }
 func (w *Row) SetGutter(h, v int) *Row {
-	w.opt.Set("gutter", []int{h, v})
+	w.e.Set("gutter", []int{h, v})
 	return w
 }
 func (w *Row) SetSpan(spans ...int) *Row {
-	w.opt.Set("span", spans)
+	w.e.Set("span", spans)
 	return w
 }
 
 func (w *Row) SetOffset(index, value int) *Row {
-	m := w.opt.Get("offset")
+	m := w.e.Get("offset")
 	if m == nil {
 		m = make(map[int]int)
 	}
 	m.(map[int]int)[index] = value
-	w.opt.Set("offset", m)
+	w.e.Set("offset", m)
 	return w
 }
 func (w *Row) Justify(justify align.Justify) *Row {
-	w.opt.Set("justify", justify)
+	w.e.Set("justify", justify)
 	return w
 }

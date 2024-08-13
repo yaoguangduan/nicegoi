@@ -3,40 +3,35 @@ package ui
 import "github.com/yaoguangduan/nicegoi/internal/ui/align"
 
 type Box struct {
-	opt IElement
+	*valuedWidget
 }
 
 func NewBox(elements ...IWidget) *Box {
-	row := Box{opt: NewElement("box").Set("align", "center")}
-	row.opt.AddChildren(elements...)
+	row := Box{valuedWidget: newValuedWidget("box", "")}
+	row.e.Set("align", "center")
+	row.e.AddChildren(elements...)
 	return &row
 }
-func (w *Box) SetAlign(align align.Align) *Box {
-	w.opt.Set("align", string(align))
+func (w *Box) Align(align align.Align) *Box {
+	w.e.Set("align", string(align))
 	return w
 }
 
 func (w *Box) Horizontal() *Box {
-	w.opt.Set("direction", "horizontal")
+	w.e.Set("direction", "horizontal")
 	return w
 }
 func (w *Box) Vertical() *Box {
-	w.opt.Set("direction", "vertical")
+	w.e.Set("direction", "vertical")
 	return w
 }
-func (w *Box) WithSeparator() *Box {
-	w.opt.Set("separator", true)
-	return w
-}
+
 func (w *Box) Remove(elements ...IWidget) {
-	w.opt.RemoveChildren(elements...)
+	w.e.RemoveChildren(elements...)
 }
 func (w *Box) RemoveByIdx(elements ...uint32) {
-	w.opt.RemoveChildrenByIndex(elements...)
+	w.e.RemoveChildrenByIndex(elements...)
 }
 func (w *Box) AddItems(elements ...IWidget) {
-	w.opt.AddChildren(elements...)
-}
-func (w *Box) Element() IElement {
-	return w.opt
+	w.e.AddChildren(elements...)
 }

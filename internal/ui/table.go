@@ -7,7 +7,7 @@ import (
 )
 
 type Table struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewTable(data interface{}) *Table {
@@ -15,8 +15,8 @@ func NewTable(data interface{}) *Table {
 	if cols == nil || realData == nil {
 		panic("invalid data format")
 	}
-	t := &Table{newValueWidget("table", realData)}
-	t.opt.Set("columns", cols)
+	t := &Table{newValuedWidget("table", realData)}
+	t.e.Set("columns", cols)
 	return t
 }
 

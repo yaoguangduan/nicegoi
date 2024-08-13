@@ -10,7 +10,7 @@ import (
 //========================label=========================
 
 type Label struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func (gb *Label) SetText(text string) *Label {
@@ -19,16 +19,16 @@ func (gb *Label) SetText(text string) *Label {
 }
 
 func NewLabel(level int, text string) *Label {
-	vw := newValueWidget("label", text)
-	vw.opt.Set("level", level)
-	l := &Label{valueWidget: vw}
+	vw := newValuedWidget("label", text)
+	vw.e.Set("level", level)
+	l := &Label{valuedWidget: vw}
 	return l
 }
 
 //========================divider=========================
 
 type Divider struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func (d *Divider) SetText(text string) *Divider {
@@ -37,38 +37,38 @@ func (d *Divider) SetText(text string) *Divider {
 }
 
 func NewDivider() *Divider {
-	vw := newValueWidget("divider", "")
-	vw.opt.Set("layout", "horizontal")
-	vw.opt.Set("align", "left")
-	l := &Divider{valueWidget: vw}
+	vw := newValuedWidget("divider", "")
+	vw.e.Set("layout", "horizontal")
+	vw.e.Set("align", "left")
+	l := &Divider{valuedWidget: vw}
 	return l
 }
 
 func (d *Divider) Vertical() *Divider {
-	d.opt.Set("layout", "vertical")
+	d.e.Set("layout", "vertical")
 	return d
 }
 func (d *Divider) AlignCenter() *Divider {
-	d.opt.Set("align", "center")
+	d.e.Set("align", "center")
 	return d
 }
 func (d *Divider) AlignRight() *Divider {
-	d.opt.Set("align", "right")
+	d.e.Set("align", "right")
 	return d
 }
 
 //========================link=========================
 
 type Link struct {
-	*valueWidget
+	*valuedWidget
 	onClick func(link *Link)
 }
 
 func (gb *Link) SetText(text string) {
-	gb.opt.Set("value", text)
+	gb.e.Set("value", text)
 }
 func (gb *Link) SetHref(href string) *Link {
-	gb.opt.Set("href", href)
+	gb.e.Set("href", href)
 	return gb
 }
 func (gb *Link) SetOnClick(onClick func(self *Link)) *Link {
@@ -76,17 +76,17 @@ func (gb *Link) SetOnClick(onClick func(self *Link)) *Link {
 	return gb
 }
 func (gb *Link) SetPrefixIcon(icon icons.Icon) *Link {
-	gb.opt.Set("prefix_icon", icon)
+	gb.e.Set("prefix_icon", icon)
 	return gb
 }
 func (gb *Link) SetSuffixIcon(icon icons.Icon) *Link {
-	gb.opt.Set("suffix_icon", icon)
+	gb.e.Set("suffix_icon", icon)
 	return gb
 }
 
 func NewLink(text string) *Link {
-	btn := &Link{valueWidget: newValueWidget("link", text)}
-	ws.RegMsgHandle(btn.opt.Eid(), func(msg *msgs.Message) {
+	btn := &Link{valuedWidget: newValuedWidget("link", text)}
+	ws.RegMsgHandle(btn.e.Eid(), func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -97,15 +97,15 @@ func NewLink(text string) *Link {
 //========================button=========================
 
 type Button struct {
-	*valueWidget
+	*valuedWidget
 	onClick func(self *Button)
 }
 
 func (gb *Button) SetText(text string) {
-	gb.opt.Set("value", text)
+	gb.e.Set("value", text)
 }
 func (gb *Button) SetIcon(icon icons.Icon) *Button {
-	gb.opt.Set("icon", icon)
+	gb.e.Set("icon", icon)
 	return gb
 }
 func (gb *Button) SetOnClick(f func(self *Button)) {
@@ -113,8 +113,8 @@ func (gb *Button) SetOnClick(f func(self *Button)) {
 }
 
 func NewButton(text string, onClick func(self *Button)) *Button {
-	btn := &Button{valueWidget: newValueWidget("button", text), onClick: onClick}
-	ws.RegMsgHandle(btn.opt.Eid(), func(msg *msgs.Message) {
+	btn := &Button{valuedWidget: newValuedWidget("button", text), onClick: onClick}
+	ws.RegMsgHandle(btn.e.Eid(), func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -125,13 +125,13 @@ func NewButton(text string, onClick func(self *Button)) *Button {
 //========================checkbox=========================
 
 type Checkbox struct {
-	*valueWidget
+	*valuedWidget
 	onChange func(self *Checkbox, v bool)
 }
 
 func NewCheckbox(state bool, text string) *Checkbox {
-	c := &Checkbox{valueWidget: newValueWidget("checkbox", state)}
-	c.opt.Set("text", text)
+	c := &Checkbox{valuedWidget: newValuedWidget("checkbox", state)}
+	c.e.Set("text", text)
 	return c
 }
 
@@ -147,13 +147,13 @@ func (c *Checkbox) OnChange(f func(self *Checkbox, checked bool)) *Checkbox {
 //========================radio=========================
 
 type Radio struct {
-	*valueWidget
+	*valuedWidget
 	onChange func(self *Radio, v string)
 }
 
 func NewRadio(selected string, items ...string) *Radio {
-	c := &Radio{valueWidget: newValueWidget("radio", selected)}
-	c.opt.Set("items", items)
+	c := &Radio{valuedWidget: newValuedWidget("radio", selected)}
+	c.e.Set("items", items)
 	return c
 }
 
@@ -173,13 +173,13 @@ func (c *Radio) Select(val string) {
 //========================Select=========================
 
 type Select struct {
-	*valueWidget
+	*valuedWidget
 	onChange func(self *Select, v string)
 }
 
 func NewSelect(selected string, items ...string) *Select {
-	c := &Select{valueWidget: newValueWidget("select", selected)}
-	c.opt.Set("items", items)
+	c := &Select{valuedWidget: newValuedWidget("select", selected)}
+	c.e.Set("items", items)
 	return c
 }
 
@@ -202,12 +202,12 @@ func (c *Select) Select(val string) {
 //========================switch=========================
 
 type Switch struct {
-	*valueWidget
+	*valuedWidget
 	onChange func(self *Switch, v string)
 }
 
 func NewSwitch(on bool) *Switch {
-	c := &Switch{valueWidget: newValueWidget("switch", on)}
+	c := &Switch{valuedWidget: newValuedWidget("switch", on)}
 	return c
 }
 
@@ -230,11 +230,11 @@ const (
 )
 
 type Input struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewInput(onChange func(self *Input, val string)) *Input {
-	w := &Input{valueWidget: newValueWidget("input", "")}
+	w := &Input{valuedWidget: newValuedWidget("input", "")}
 	w.onValChange(func(v any) {
 		if onChange != nil {
 			onChange(w, v.(string))
@@ -243,19 +243,19 @@ func NewInput(onChange func(self *Input, val string)) *Input {
 	return w
 }
 func (w *Input) SetPrepend(prepend string) *Input {
-	w.opt.Set("prepend", prepend)
+	w.e.Set("prepend", prepend)
 	return w
 }
 func (w *Input) SetAppend(append string) *Input {
-	w.opt.Set("append", append)
+	w.e.Set("append", append)
 	return w
 }
 func (w *Input) SetIcon(icon icons.Icon) *Input {
-	w.opt.Set("icon", icon)
+	w.e.Set("icon", icon)
 	return w
 }
 func (w *Input) EnablePassword() *Input {
-	w.opt.Set("password", true)
+	w.e.Set("password", true)
 	return w
 }
 func (w *Input) SetValue(value string) *Input {
@@ -263,19 +263,19 @@ func (w *Input) SetValue(value string) *Input {
 	return w
 }
 func (w *Input) PlaceHolder(pl string) *Input {
-	w.opt.Set(inputPlaceholder, pl)
+	w.e.Set(inputPlaceholder, pl)
 	return w
 }
 
 // ========================loading=========================
 
 type Loading struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewLoading(text string) *Loading {
-	w := &Loading{valueWidget: newValueWidget("loading", false)}
-	w.opt.Set("text", text)
+	w := &Loading{valuedWidget: newValuedWidget("loading", false)}
+	w.e.Set("text", text)
 	return w
 }
 func (w *Loading) Start() *Loading {
@@ -287,7 +287,7 @@ func (w *Loading) Stop() *Loading {
 	return w
 }
 func (w *Loading) AddItems(items ...IWidget) *Loading {
-	w.opt.AddChildren(items...)
+	w.e.AddChildren(items...)
 	return w
 }
 func (w *Loading) GetState() bool {
@@ -295,7 +295,7 @@ func (w *Loading) GetState() bool {
 }
 
 func (w *Loading) FullScreen() *Loading {
-	w.opt.Set("fullscreen", true)
+	w.e.Set("fullscreen", true)
 	return w
 }
 
@@ -311,12 +311,12 @@ const (
 )
 
 type Progress struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewProgress(percent float32) *Progress {
-	w := &Progress{valueWidget: newValueWidget("progress", percent)}
-	w.opt.Set("theme", "line")
+	w := &Progress{valuedWidget: newValuedWidget("progress", percent)}
+	w.e.Set("theme", "line")
 	return w
 }
 func (w *Progress) Update(percent float32) *Progress {
@@ -327,22 +327,22 @@ func (w *Progress) Current() float32 {
 	return w.get().(float32)
 }
 func (w *Progress) MarkState(s state) *Progress {
-	w.opt.Set("state", s)
+	w.e.Set("state", s)
 	return w
 }
 func (w *Progress) CircleStyle() *Progress {
-	w.opt.Set("theme", "circle")
+	w.e.Set("theme", "circle")
 	return w
 }
 
 // ========================badge=========================
 
 type Badge struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewBadge(count int) *Badge {
-	w := &Badge{valueWidget: newValueWidget("badge", count)}
+	w := &Badge{valuedWidget: newValuedWidget("badge", count)}
 	return w
 }
 func (w *Badge) Count() int {
@@ -357,20 +357,20 @@ func (w *Badge) Decr(i int) *Badge {
 	return w
 }
 func (w *Badge) SetChild(c IWidget) *Badge {
-	w.opt.AddChildren(c)
+	w.e.AddChildren(c)
 	return w
 }
 
 //========================description=========================
 
 type Description struct {
-	*valueWidget
+	*valuedWidget
 }
 
 // NewDescription map[string]string/struct
 func NewDescription(cols int, daa interface{}) *Description {
-	w := &Description{valueWidget: newValueWidget("description", cols)}
-	w.opt.Set("data", daa)
+	w := &Description{valuedWidget: newValuedWidget("description", cols)}
+	w.e.Set("data", daa)
 	return w
 }
 
@@ -379,11 +379,11 @@ func NewDescription(cols int, daa interface{}) *Description {
 const datetimeFormat = "2006-01-02 15:04:05"
 
 type DateTime struct {
-	*valueWidget
+	*valuedWidget
 }
 
 func NewDateTime(datetime time.Time) *DateTime {
-	w := &DateTime{valueWidget: newValueWidget("datetime", datetime.Format(datetimeFormat))}
+	w := &DateTime{valuedWidget: newValuedWidget("datetime", datetime.Format(datetimeFormat))}
 	return w
 }
 func (w *DateTime) OnChange(f func(self *DateTime, datetime time.Time, err error)) *DateTime {
@@ -396,46 +396,10 @@ func (w *DateTime) OnChange(f func(self *DateTime, datetime time.Time, err error
 	return w
 }
 func (w *DateTime) Set(value time.Time) {
-	w.opt.Set("value", value.Format(datetimeFormat))
+	w.e.Set("value", value.Format(datetimeFormat))
 }
 func (w *DateTime) Get() (time.Time, error) {
 	dts := w.get().(string)
 	parse, err := time.Parse(datetimeFormat, dts)
 	return parse, err
-}
-
-//=======================================================================================
-
-type valueWidget struct {
-	opt IElement
-	f   func(v any)
-}
-
-func (vw *valueWidget) Element() IElement {
-	return vw.opt
-}
-
-func newValueWidget(kind string, value any) *valueWidget {
-	w := &valueWidget{opt: NewElement(kind).Set("value", value)}
-	ws.RegMsgHandle(w.opt.Eid(), func(message *msgs.Message) {
-		w.opt.Modify("value", message.Data)
-		if w.f != nil {
-			w.f(message.Data)
-		}
-	})
-	return w
-}
-func (vw *valueWidget) set(val any) {
-	vw.opt.Set("value", val)
-}
-func (vw *valueWidget) get() any {
-	return vw.opt.Get("value")
-}
-
-func (vw *valueWidget) onValChange(f func(v any)) {
-	vw.f = f
-}
-
-func (vw *valueWidget) Visible(visible bool) {
-	vw.opt.Set("hide", !visible)
 }

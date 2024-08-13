@@ -191,13 +191,13 @@ func main() {
 	)
 
 	goi.Divider().SetText("progress")
-	p0 := goi.Progress(20)
+
 	p := goi.Progress(20).CircleStyle()
+	goi.H6("progress:")
+	p0 := goi.Progress(20)
 	goi.Box(
-		goi.H6("progress:"),
-		p0,
 		goi.Button("add", func(self *ui.Button) {
-			p0.Update(p0.Current() - 2)
+			p0.Update(p0.Current() + 2)
 			p.Update(p.Current() + 2)
 		}),
 		p,
@@ -207,6 +207,9 @@ func main() {
 		goi.Divider().Vertical(),
 		goi.H6("warning:"),
 		goi.Progress(45).CircleStyle().MarkState(ui.ProgressWarning),
+		goi.Divider().Vertical(),
+		goi.H6("success:"),
+		goi.Progress(100).CircleStyle().MarkState(ui.ProgressSuccess),
 	)
 	goi.Divider().SetText("description")
 	goi.Description(2, map[string]string{"Name": "NceGoi", "Tel": "12288884444", "Area": "China SHangHai", "Address": "XUJIAHU DASHIJIE"})
