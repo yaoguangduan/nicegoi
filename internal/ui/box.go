@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/yaoguangduan/nicegoi/internal/ui/align"
+import (
+	"github.com/yaoguangduan/nicegoi/internal/option"
+)
 
 type Box struct {
 	*valuedWidget
@@ -12,7 +14,7 @@ func NewBox(elements ...IWidget) *Box {
 	row.e.AddChildren(elements...)
 	return &row
 }
-func (w *Box) Align(align align.Align) *Box {
+func (w *Box) Align(align option.Align) *Box {
 	w.e.Set("align", string(align))
 	return w
 }

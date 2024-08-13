@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/yaoguangduan/nicegoi/goi"
+	"github.com/yaoguangduan/nicegoi/internal/option"
+	"github.com/yaoguangduan/nicegoi/internal/option/menu"
+	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
 	"github.com/yaoguangduan/nicegoi/internal/ui"
-	"github.com/yaoguangduan/nicegoi/internal/ui/align"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
-	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
-	"github.com/yaoguangduan/nicegoi/internal/ui/place"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	card.AddFooters(goi.Link("add"), goi.Link("Setting"))
 	card.SetTitle("card title")
 
-	tab := ui.NewTab().SetPlace(place.Left)
+	tab := ui.NewTab().SetPlace(option.Left)
 
 	loading := ui.NewLoading("loading...")
 	fullLoading := ui.NewLoading("loadingAll...").FullScreen()
@@ -142,7 +142,7 @@ func main() {
 	goi.Box(
 		goi.H6("Tabs:"),
 		goi.Radio("left", "top", "left", "right", "bottom").OnChange(func(self *ui.Radio, selected string) {
-			tab.SetPlace(place.Placement(selected))
+			tab.SetPlace(option.Placement(selected))
 		}),
 		tab.Add("button", goi.Button("button", nil)).
 			AddWithIcon("link", icons.Link, goi.Link("Remove Cur Tab").SetOnClick(func(self *ui.Link) {
@@ -223,6 +223,12 @@ func main() {
 		})),
 	)
 
+	goi.Divider().SetText("timeline")
+	goi.Timeline().Add(timeline.Primary("2024-10-01", "something common")).
+		Add(timeline.Success("2024-10-21", "something success")).
+		Add(timeline.Warning("2024-11-01", "something warning").WithDetail("a detail description")).
+		Add(timeline.Error("2024-10-21", "something error"))
+
 	goi.Divider().SetText("row")
 	goi.Label("default:")
 	goi.Row(goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span 4"), goi.Input(nil).PlaceHolder("span 4"))
@@ -238,15 +244,15 @@ func main() {
 
 	goi.H4("align:")
 	goi.Label("left:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(align.RowLeft)
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowLeft)
 	goi.Label("center:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(align.RowCenter)
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowCenter)
 	goi.Label("right:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(align.RowRight)
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowRight)
 	goi.Label("space around:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(align.RowSpaceAround)
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowSpaceAround)
 	goi.Label("space between:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(align.RowSpaceBetween)
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowSpaceBetween)
 	goi.Run()
 
 }

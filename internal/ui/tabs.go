@@ -1,8 +1,8 @@
 package ui
 
 import (
+	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
-	"github.com/yaoguangduan/nicegoi/internal/ui/place"
 )
 
 type Tab struct {
@@ -59,7 +59,7 @@ func (t *Tab) SetOnChange(onChange func(key string, widget IWidget)) *Tab {
 	return t
 }
 
-func (t *Tab) SetPlace(place place.Placement) *Tab {
+func (t *Tab) SetPlace(place option.Placement) *Tab {
 	t.e.Set("place", place)
 	return t
 }

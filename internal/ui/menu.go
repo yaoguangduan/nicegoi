@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
-	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
+	"github.com/yaoguangduan/nicegoi/internal/option/menu"
 	"github.com/yaoguangduan/nicegoi/internal/ws"
 )
 

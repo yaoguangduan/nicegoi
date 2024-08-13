@@ -1,4 +1,4 @@
-package align
+package option
 
 type Align string
 
@@ -14,3 +14,10 @@ const RowLeft = Justify("left")
 const RowRight = Justify("right")
 const RowSpaceBetween = Justify("space-between")
 const RowSpaceAround = Justify("space-around")
+
+type Placement string
+
+const Top = Placement("top")
+const Left = Placement("left")
+const Right = Placement("right")
+const Bottom = Placement("bottom")

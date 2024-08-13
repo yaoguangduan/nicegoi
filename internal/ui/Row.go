@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/yaoguangduan/nicegoi/internal/ui/align"
+import (
+	"github.com/yaoguangduan/nicegoi/internal/option"
+)
 
 type Row struct {
 	*valuedWidget
@@ -29,7 +31,7 @@ func (w *Row) SetOffset(index, value int) *Row {
 	w.e.Set("offset", m)
 	return w
 }
-func (w *Row) Justify(justify align.Justify) *Row {
+func (w *Row) Justify(justify option.Justify) *Row {
 	w.e.Set("justify", justify)
 	return w
 }

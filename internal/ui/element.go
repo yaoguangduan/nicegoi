@@ -61,11 +61,9 @@ func (e *Element) Get(key string) any {
 	return e.Data[key]
 }
 func (e *Element) Set(key string, value any) IElement {
-	old, exist := e.Data[key]
+	//old, exist := e.Data[key]
 	e.Data[key] = value
-	if !exist || old != value {
-		e.OnModify(key)
-	}
+	e.OnModify(key)
 	return e
 }
 

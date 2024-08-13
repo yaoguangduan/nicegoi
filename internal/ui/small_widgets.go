@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
 	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"time"
@@ -402,4 +403,26 @@ func (w *DateTime) Get() (time.Time, error) {
 	dts := w.get().(string)
 	parse, err := time.Parse(datetimeFormat, dts)
 	return parse, err
+}
+
+//========================timeline=========================
+
+type Timeline struct {
+	*valuedWidget
+}
+
+func NewTimeline(options ...*timeline.Option) *Timeline {
+	w := &Timeline{newValuedWidget("timeline", options)}
+	w.e.Set("layout", "vertical")
+	return w
+}
+func (w *Timeline) Horizontal() *Timeline {
+	w.e.Set("layout", "horizontal")
+	return w
+}
+func (w *Timeline) Add(options ...*timeline.Option) *Timeline {
+	opts := w.get().([]*timeline.Option)
+	opts = append(opts, options...)
+	w.set(opts)
+	return w
 }

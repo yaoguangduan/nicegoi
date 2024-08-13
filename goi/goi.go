@@ -1,8 +1,9 @@
 package goi
 
 import (
+	"github.com/yaoguangduan/nicegoi/internal/option/menu"
+	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
 	"github.com/yaoguangduan/nicegoi/internal/ui"
-	"github.com/yaoguangduan/nicegoi/internal/ui/menu"
 	"time"
 )
 
@@ -118,6 +119,10 @@ func Divider() *ui.Divider {
 }
 func Row(items ...ui.IWidget) *ui.Row {
 	return ui.NewRow(items...)
+}
+
+func Timeline(opts ...*timeline.Option) *ui.Timeline {
+	return ui.NewTimeline(opts...)
 }
 func Run() {
 	ui.Run()
