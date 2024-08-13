@@ -92,6 +92,35 @@ func main() {
 			goi.MsgSuccess(fmt.Sprintf("you clicked:%s", value))
 		}),
 	)
+	goi.Divider().SetText("tag")
+	tags := make([]ui.IWidget, 0)
+	variants := []option.Variant{option.Outline, option.Text, option.Base, option.Dashed}
+	themes := []option.Theme{option.Default, option.Primary, option.Danger, option.Success, option.Warning}
+	for _, variant := range variants {
+		for _, theme := range themes {
+			tags = append(tags, goi.Tag(fmt.Sprintf("%s/%s", variant, theme)).SetVariant(variant).SetTheme(theme))
+		}
+	}
+	goi.Box(tags...)
+
+	goi.Divider().SetText("tag input")
+	goi.Row(
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifySuccess("tag input", fmt.Sprintf("%v", values))
+		}).SetTheme(option.Success).PlaceHolder("success theme"),
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifyInfo("tag input", fmt.Sprintf("%v", values))
+		}).SetTheme(option.Primary).PlaceHolder("primary theme"),
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifyInfo("tag input", fmt.Sprintf("%v", values))
+		}).SetTheme(option.Default).PlaceHolder("default theme"),
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifyError("tag input", fmt.Sprintf("%v", values))
+		}).SetTheme(option.Danger).PlaceHolder("danger theme"),
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifyWarn("tag input", fmt.Sprintf("%v", values))
+		}).SetTheme(option.Warning).PlaceHolder("warning theme"),
+	).SetSpan(2, 2, 2, 2, 2).SetGutter(10, 0).Justify(option.RowSpaceAround)
 
 	goi.Divider().SetText("card")
 	goi.Box(

@@ -473,3 +473,56 @@ func (gb *Dropdown) SetVariant(variant option.Variant) *Dropdown {
 	gb.e.Set("variant", variant)
 	return gb
 }
+
+//========================dropdown=========================
+
+type Tag struct {
+	*valuedWidget
+}
+
+func NewTag(text string) *Tag {
+	w := &Tag{valuedWidget: newValuedWidget("tag", text)}
+	w.e.Set("theme", "primary")
+	w.e.Set("variant", "text")
+	return w
+}
+func (gb *Tag) SetTheme(theme option.Theme) *Tag {
+	gb.e.Set("theme", theme)
+	return gb
+}
+func (gb *Tag) SetVariant(variant option.Variant) *Tag {
+	gb.e.Set("variant", variant)
+	return gb
+}
+
+//========================input=========================
+
+type TagInput struct {
+	*valuedWidget
+}
+
+func NewTagInput(onChange func(self *TagInput, values []string)) *TagInput {
+	w := &TagInput{valuedWidget: newValuedWidget("tag-input", make([]string, 0))}
+	w.onValChange(func(v any) {
+		if onChange != nil {
+			onChange(w, w.GetValues())
+		}
+	})
+	return w
+}
+func (w *TagInput) PlaceHolder(pl string) *TagInput {
+	w.e.Set(inputPlaceholder, pl)
+	return w
+}
+
+func (w *TagInput) SetTheme(theme option.Theme) *TagInput {
+	w.e.Set("theme", theme)
+	return w
+}
+func (w TagInput) GetValues() []string {
+	vv := make([]string, 0)
+	for _, vvv := range w.get().([]interface{}) {
+		vv = append(vv, vvv.(string))
+	}
+	return vv
+}

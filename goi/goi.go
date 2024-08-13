@@ -130,6 +130,12 @@ func Drawer(header string) *ui.Drawer {
 func Dropdown(text string, options ...string) *ui.Dropdown {
 	return ui.NewDropdown(text, options...)
 }
+func Tag(text string) *ui.Tag {
+	return ui.NewTag(text)
+}
+func TagInput(f func(self *ui.TagInput, values []string)) *ui.TagInput {
+	return ui.NewTagInput(f)
+}
 func Run() {
 	ui.Run()
 }
