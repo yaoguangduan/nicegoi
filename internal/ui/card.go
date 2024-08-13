@@ -4,10 +4,6 @@ type GoiCard struct {
 	opt IElement
 }
 
-func (w *GoiCard) Run() {
-	w.opt.Run()
-}
-
 func NewCard(content string) *GoiCard {
 	return NewCardWithTitle("", content)
 }

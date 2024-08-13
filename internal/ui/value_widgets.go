@@ -399,10 +399,6 @@ func (vw *valueWidget) get() any {
 	return vw.opt.Get("value")
 }
 
-func (vw *valueWidget) Run() {
-	vw.opt.Run()
-}
-
 func (vw *valueWidget) onValChange(f func(v any)) {
 	vw.f = f
 }

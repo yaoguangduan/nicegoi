@@ -113,3 +113,6 @@ func Description(cols int, data interface{}) *ui.Description {
 func Badge(count int) *ui.Badge {
 	return ui.NewBadge(count)
 }
+func Run() {
+	ui.Run()
+}

@@ -13,10 +13,7 @@ func (w *EmptyWidget) Element() IElement {
 }
 
 func NewEmptyWidget(eid string, kind string) IWidget {
-	return &EmptyWidget{opt: &Element{
-		Data:     nil,
-		Id:       eid,
-		Kind:     kind,
-		Elements: nil,
-	}}
+	element := NewElement(kind).(*Element)
+	element.Id = eid
+	return &EmptyWidget{opt: element}
 }

@@ -6,10 +6,6 @@ type Box struct {
 	opt IElement
 }
 
-func (w *Box) Run() {
-	w.opt.Run()
-}
-
 func NewBox(elements ...IWidget) *Box {
 	row := Box{opt: NewElement("box").Set("align", "center")}
 	row.opt.AddChildren(elements...)

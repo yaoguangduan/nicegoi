@@ -11,18 +11,17 @@ import (
 	"slices"
 )
 
-type LifeCycle interface {
-	BeforeRun()
-}
+var elements = make([]IElement, 0)
 
 type IElement interface {
 	Eid() string
 	Type() string
+	Parent() IElement
+	SetParent(IElement)
 	Children() []IElement
 	AddChildren(...IWidget)
 	RemoveChildren(...IWidget)
 	RemoveChildrenByIndex(...uint32)
-	Run()
 	Modify(key string, value any) IElement
 	Set(key string, value any) IElement
 	Get(key string) any
@@ -30,6 +29,7 @@ type IElement interface {
 type Data map[string]any
 type Element struct {
 	Data     `json:"data"`
+	Par      IElement   `json:"-"`
 	Id       string     `json:"eid"`
 	Kind     string     `json:"type"`
 	Elements []IElement `json:"elements"`
@@ -42,7 +42,14 @@ func NewElement(kind string) IElement {
 		Id:       util.AllocEID(),
 		Data:     make(map[string]any),
 	}
+	elements = append(elements, e)
 	return e
+}
+func (e *Element) Parent() IElement {
+	return e.Par
+}
+func (e *Element) SetParent(p IElement) {
+	e.Par = p
 }
 func (e *Element) Type() string {
 	return e.Kind
@@ -100,6 +107,7 @@ func (e *Element) AddChildren(cc ...IWidget) {
 	added := make([]any, 0)
 	for _, c := range cc {
 		ce := c.Element()
+		ce.SetParent(e)
 		added = append(added, ce)
 		e.Elements = append(e.Elements, ce)
 	}
@@ -119,7 +127,10 @@ func (e *Element) RemoveChildrenByIndex(ii ...uint32) {
 		if len(e.Elements) <= int(idx) {
 			continue
 		}
-		removed = append(removed, e.Elements[idx].Eid())
+		eid := e.Elements[idx].Eid()
+		e.Elements[idx].SetParent(nil)
+		slices.Delete(elements, int(idx), int(idx))
+		removed = append(removed, eid)
 		e.Elements = append(e.Elements[:idx], e.Elements[idx+1:]...)
 	}
 
@@ -149,33 +160,6 @@ func (e *Element) Children() []IElement {
 	}
 	return e.Elements
 }
-func (e *Element) Run() {
-	run(e)
-}
-
-func run(element IElement) {
-	RootElement.Elements = append(RootElement.Elements, element)
-
-	ws.OnNewConn(func(conn *websocket.Conn) {
-		bys, err := json.Marshal(RootElement.Elements)
-		if err != nil {
-			log.Printf("conn full msg error ;%s", err)
-		}
-		log.Printf("send conn msg:%v", msgs.Message{Eid: RootElement.Eid(), Kind: "data", Data: string(bys)})
-		conn.WriteJSON(msgs.Message{Eid: RootElement.Eid(), Kind: "add", Data: string(bys)})
-	})
-	httpx.Run()
-}
-
-func (e *Element) BeforeRun() {
-	ws.OnNewConn(func(conn *websocket.Conn) {
-		bys, err := json.Marshal(e)
-		if err != nil {
-			log.Printf("conn full msg error ;%s", err)
-		}
-		conn.WriteJSON(msgs.Message{Eid: e.Eid(), Kind: "data", Data: string(bys)})
-	})
-}
 
 type Root struct {
 	Element
@@ -188,4 +172,21 @@ var RootElement = &Root{Element{
 
 func (re Root) SendRootMessage(cmd string, data any) {
 	ws.Send(re.Id, cmd, data)
+}
+func Run() {
+	for _, ele := range elements {
+		if ele.Parent() == nil {
+			ele.SetParent(RootElement)
+			RootElement.Elements = append(RootElement.Elements, ele)
+		}
+	}
+	ws.OnNewConn(func(conn *websocket.Conn) {
+		bys, err := json.Marshal(RootElement.Elements)
+		if err != nil {
+			log.Printf("conn full msg error ;%s", err)
+		}
+		log.Printf("send conn msg:%v", msgs.Message{Eid: RootElement.Eid(), Kind: "data", Data: string(bys)})
+		conn.WriteJSON(msgs.Message{Eid: RootElement.Eid(), Kind: "add", Data: string(bys)})
+	})
+	httpx.Run()
 }

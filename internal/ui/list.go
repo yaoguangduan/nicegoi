@@ -4,10 +4,6 @@ type List struct {
 	opt IElement
 }
 
-func (w *List) Run() {
-	w.opt.Run()
-}
-
 func NewList() *List {
 	list := List{opt: NewElement("list")}
 	return &list
