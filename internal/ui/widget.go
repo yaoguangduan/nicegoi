@@ -6,15 +6,15 @@ import (
 )
 
 type IWidget interface {
-	Element() *Element
+	element() *element
 	Page() server.IPage
 }
 
 type emptyWidget struct {
-	opt *Element
+	opt *element
 }
 
-func (w *emptyWidget) Element() *Element {
+func (w *emptyWidget) element() *element {
 	return w.opt
 }
 func (w *emptyWidget) Page() server.IPage {
@@ -22,7 +22,7 @@ func (w *emptyWidget) Page() server.IPage {
 }
 
 func newEmptyWidget(eid string, kind string) IWidget {
-	element := NewElement(kind)
+	element := createElement(kind)
 	element.Id = eid
 	return &emptyWidget{opt: element}
 }
@@ -30,11 +30,11 @@ func newEmptyWidget(eid string, kind string) IWidget {
 //=======================================================================================
 
 type valuedWidget struct {
-	e *Element
+	e *element
 	f func(v any)
 }
 
-func (vw *valuedWidget) Element() *Element {
+func (vw *valuedWidget) element() *element {
 	return vw.e
 }
 func (vw *valuedWidget) Page() server.IPage {
@@ -45,7 +45,7 @@ func (vw *valuedWidget) AddMsgHandler(f func(message *msgs.Message)) *valuedWidg
 	return vw
 }
 func newValuedWidget(kind string, value any) *valuedWidget {
-	w := &valuedWidget{e: NewElement(kind).Set("value", value)}
+	w := &valuedWidget{e: createElement(kind).Set("value", value)}
 	w.AddMsgHandler(func(message *msgs.Message) {
 		w.e.Modify("value", message.Data)
 		if w.f != nil {
@@ -56,7 +56,7 @@ func newValuedWidget(kind string, value any) *valuedWidget {
 	return w
 }
 func newReadonlyWidget(kind string, value any) *valuedWidget {
-	w := &valuedWidget{e: NewElement(kind).Set("value", value)}
+	w := &valuedWidget{e: createElement(kind).Set("value", value)}
 	w.AddMsgHandler(func(message *msgs.Message) {
 		if w.f != nil {
 			w.f(message.Data)

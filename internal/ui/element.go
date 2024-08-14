@@ -13,24 +13,24 @@ import (
 	"sync"
 )
 
-var elements = make([]*Element, 0)
+var elements = make([]*element, 0)
 
 type Data map[string]any
-type Element struct {
+type element struct {
 	Data     `json:"data"`
-	Par      *Element                  `json:"-"`
+	Par      *element                  `json:"-"`
 	Id       string                    `json:"eid"`
 	Kind     string                    `json:"type"`
-	Elements []*Element                `json:"elements"`
+	Elements []*element                `json:"elements"`
 	Page     *Page                     `json:"-"`
 	W        IWidget                   `json:"-"`
 	Handlers []func(msg *msgs.Message) `json:"-"`
 }
 
-func NewElement(kind string) *Element {
-	e := &Element{
+func createElement(kind string) *element {
+	e := &element{
 		Kind:     kind,
-		Elements: make([]*Element, 0),
+		Elements: make([]*element, 0),
 		Id:       util.AllocEID(),
 		Data:     make(map[string]any),
 	}
@@ -38,8 +38,8 @@ func NewElement(kind string) *Element {
 	return e
 }
 
-func (e *Element) Duplicate() *Element {
-	ed := NewElement(e.Kind)
+func (e *element) Duplicate() *element {
+	ed := createElement(e.Kind)
 	for _, c := range e.Elements {
 		ed.Elements = append(ed.Elements, c.Duplicate())
 	}
@@ -52,43 +52,43 @@ func (e *Element) Duplicate() *Element {
 	return ed
 }
 
-func (e *Element) GetWidget() IWidget {
+func (e *element) GetWidget() IWidget {
 	return e.W
 }
-func (e *Element) AttachWidget(w IWidget) {
+func (e *element) AttachWidget(w IWidget) {
 	e.W = w
 }
-func (e *Element) Parent() *Element {
+func (e *element) Parent() *element {
 	return e.Par
 }
-func (e *Element) SetParent(p *Element) {
+func (e *element) SetParent(p *element) {
 	e.Par = p
 }
-func (e *Element) Type() string {
+func (e *element) Type() string {
 	return e.Kind
 }
-func (e *Element) SetVisible(visible bool) {
+func (e *element) SetVisible(visible bool) {
 	e.Set("hide", !visible)
 }
-func (e *Element) Get(key string) any {
+func (e *element) Get(key string) any {
 	return e.Data[key]
 }
-func (e *Element) Set(key string, value any) *Element {
+func (e *element) Set(key string, value any) *element {
 	//old, exist := e.Data[key]
 	e.Data[key] = value
 	e.OnModify(key)
 	return e
 }
 
-func (e *Element) Modify(key string, value any) *Element {
+func (e *element) Modify(key string, value any) *element {
 	e.Data[key] = value
 	return e
 }
 
-func (e *Element) get(key string) any {
+func (e *element) get(key string) any {
 	return e.Data[key]
 }
-func (e *Element) OnModify(fields ...string) {
+func (e *element) OnModify(fields ...string) {
 	res := make(map[string]any)
 	res["data"] = getUpdated(*e, fields...)
 	if e.Page != nil {
@@ -96,7 +96,7 @@ func (e *Element) OnModify(fields ...string) {
 	}
 }
 
-func getUpdated(e Element, fields ...string) map[string]any {
+func getUpdated(e element, fields ...string) map[string]any {
 	data := make(map[string]any)
 	for _, field := range fields {
 		val, exist := e.Data[field]
@@ -107,16 +107,16 @@ func getUpdated(e Element, fields ...string) map[string]any {
 	return data
 }
 
-func (e *Element) Eid() string {
+func (e *element) Eid() string {
 	return e.Id
 }
-func (e *Element) AddChildren(cc ...IWidget) {
+func (e *element) AddChildren(cc ...IWidget) {
 	if e.Elements == nil {
-		e.Elements = make([]*Element, 0)
+		e.Elements = make([]*element, 0)
 	}
 	added := make([]any, 0)
 	for _, c := range cc {
-		ce := c.Element()
+		ce := c.element()
 		ce.Par = e
 		added = append(added, ce)
 		e.Elements = append(e.Elements, ce)
@@ -126,7 +126,7 @@ func (e *Element) AddChildren(cc ...IWidget) {
 	}
 }
 
-func (e *Element) RemoveChildrenByIndex(ii ...uint32) {
+func (e *element) RemoveChildrenByIndex(ii ...uint32) {
 	if e.Elements == nil {
 		return
 	}
@@ -145,14 +145,14 @@ func (e *Element) RemoveChildrenByIndex(ii ...uint32) {
 	}
 	e.Page.SendMessage(e.Id, "remove", removed)
 }
-func (e *Element) RemoveChildren(cc ...IWidget) {
+func (e *element) RemoveChildren(cc ...IWidget) {
 	if e.Elements == nil {
 		return
 	}
 	removed := make([]uint32, 0)
 	for _, c := range cc {
-		idx := slices.IndexFunc(e.Elements, func(element *Element) bool {
-			return c.Element().Eid() == element.Eid()
+		idx := slices.IndexFunc(e.Elements, func(element *element) bool {
+			return c.element().Eid() == element.Eid()
 		})
 		if idx != -1 {
 			removed = append(removed, uint32(idx))
@@ -161,16 +161,16 @@ func (e *Element) RemoveChildren(cc ...IWidget) {
 	e.RemoveChildrenByIndex(removed...)
 }
 
-func (e *Element) Children() []*Element {
+func (e *element) Children() []*element {
 	if e.Elements == nil {
-		e.Elements = make([]*Element, 0)
+		e.Elements = make([]*element, 0)
 	}
 	return e.Elements
 }
 
 type Page struct {
 	sync.Mutex
-	root    *Element
+	root    *element
 	route   string
 	name    string
 	padding []*msgs.Message
@@ -192,7 +192,7 @@ func (p *Page) OnInit() {
 	setElementPage(p.root, p)
 }
 
-func setElementPage(root *Element, p *Page) {
+func setElementPage(root *element, p *Page) {
 	root.Page = p
 	for _, e := range root.Elements {
 		setElementPage(e, p)
@@ -235,7 +235,7 @@ func (p *Page) RouteTo(name string) {
 	p.SendMessage("EID0", "route", name)
 }
 
-func findElement(element *Element, id string) *Element {
+func findElement(element *element, id string) *element {
 	if element.Id == id {
 		return element
 	} else {
@@ -249,7 +249,7 @@ func findElement(element *Element, id string) *Element {
 	return nil
 }
 func createPage(name string) *Page {
-	e := &Element{Id: "EID0"}
+	e := &element{Id: "EID0"}
 	var route = name
 	if !strings.HasPrefix(route, "/") {
 		route = "/" + route

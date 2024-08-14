@@ -10,7 +10,7 @@ type Menu struct {
 }
 
 func NewMenu(m *menu.Option) *Menu {
-	w := &valuedWidget{e: NewElement("menu").Set("root", m)}
+	w := &valuedWidget{e: createElement("menu").Set("root", m)}
 	if m.Value != "" {
 		w.set(m.Value)
 	}

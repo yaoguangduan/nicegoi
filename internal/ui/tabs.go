@@ -29,7 +29,7 @@ func (t *Tab) Add(val string, widget IWidget) *Tab {
 func (t *Tab) AddWithIcon(val string, icon icons.Icon, widget IWidget) *Tab {
 	ew := newValuedWidget(t.e.Eid()+"_S", val)
 	ew.e.Set("icon", icon)
-	ew.Element().AddChildren(widget)
+	ew.element().AddChildren(widget)
 	t.e.AddChildren(ew)
 	if len(t.e.Children()) == 1 {
 		t.set(t.e.Children()[0].Type())
