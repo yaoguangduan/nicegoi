@@ -5,7 +5,6 @@ import (
 	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
 	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
-	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"time"
 )
 
@@ -21,7 +20,7 @@ func (gb *Label) SetText(text string) *Label {
 }
 
 func NewLabel(level int, text string) *Label {
-	vw := newValuedWidget("label", text)
+	vw := newReadonlyWidget("label", text)
 	vw.e.Set("level", level)
 	l := &Label{valuedWidget: vw}
 	return l
@@ -39,7 +38,7 @@ func (d *Divider) SetText(text string) *Divider {
 }
 
 func NewDivider() *Divider {
-	vw := newValuedWidget("divider", "")
+	vw := newReadonlyWidget("divider", "")
 	vw.e.Set("layout", "horizontal")
 	vw.e.Set("align", "left")
 	l := &Divider{valuedWidget: vw}
@@ -91,8 +90,8 @@ func (gb *Link) SetTheme(theme option.Theme) *Link {
 }
 
 func NewLink(text string) *Link {
-	btn := &Link{valuedWidget: newValuedWidget("link", text)}
-	ws.RegMsgHandle(btn.e.Eid(), func(msg *msgs.Message) {
+	btn := &Link{valuedWidget: newReadonlyWidget("link", text)}
+	btn.AddMsgHandler(func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -127,8 +126,8 @@ func (gb *Button) SetVariant(variant option.Variant) *Button {
 	return gb
 }
 func NewButton(text string, onClick func(self *Button)) *Button {
-	btn := &Button{valuedWidget: newValuedWidget("button", text), onClick: onClick}
-	ws.RegMsgHandle(btn.e.Eid(), func(msg *msgs.Message) {
+	btn := &Button{valuedWidget: newReadonlyWidget("button", text), onClick: onClick}
+	btn.AddMsgHandler(func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -384,7 +383,7 @@ type Description struct {
 
 // NewDescription map[string]string/struct
 func NewDescription(cols int, daa interface{}) *Description {
-	w := &Description{valuedWidget: newValuedWidget("description", cols)}
+	w := &Description{valuedWidget: newReadonlyWidget("description", cols)}
 	w.e.Set("data", daa)
 	return w
 }
@@ -426,7 +425,7 @@ type Timeline struct {
 }
 
 func NewTimeline(options ...*timeline.Option) *Timeline {
-	w := &Timeline{newValuedWidget("timeline", options)}
+	w := &Timeline{newReadonlyWidget("timeline", options)}
 	w.e.Set("layout", "vertical")
 	return w
 }
@@ -449,7 +448,7 @@ type Dropdown struct {
 }
 
 func NewDropdown(text string, opts ...string) *Dropdown {
-	w := &Dropdown{valuedWidget: newValuedWidget("dropdown", "")}
+	w := &Dropdown{valuedWidget: newReadonlyWidget("dropdown", "")}
 	w.e.Set("options", opts)
 	w.e.Set("text", text)
 	w.e.Set("theme", "primary")
@@ -481,7 +480,7 @@ type Tag struct {
 }
 
 func NewTag(text string) *Tag {
-	w := &Tag{valuedWidget: newValuedWidget("tag", text)}
+	w := &Tag{valuedWidget: newReadonlyWidget("tag", text)}
 	w.e.Set("theme", "primary")
 	w.e.Set("variant", "text")
 	return w
@@ -490,7 +489,7 @@ func (gb *Tag) SetTheme(theme option.Theme) *Tag {
 	gb.e.Set("theme", theme)
 	return gb
 }
-func (gb *Tag) SetVariant(variant option.Variant) *Tag {
+func (gb *Tag) SetVariant(variant option.TagVariant) *Tag {
 	gb.e.Set("variant", variant)
 	return gb
 }

@@ -5,7 +5,7 @@ It is great for micro web apps,tools app.
 
 ##### run belong command to see demo:
 ```shell
-go run github.com/yaoguangduan/nicegoi/cmd@latest
+go run github.com/yaoguangduan/nicegoi/cmd/nicegoi_demo@latest
 ```
 
 ##### Features

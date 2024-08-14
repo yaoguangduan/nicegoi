@@ -10,8 +10,8 @@ const BoxBaseline = Align("baseline")
 type Justify string
 
 const RowCenter = Justify("center")
-const RowLeft = Justify("left")
-const RowRight = Justify("right")
+const RowStart = Justify("start")
+const RowEnd = Justify("end")
 const RowSpaceBetween = Justify("space-between")
 const RowSpaceAround = Justify("space-around")
 
@@ -36,3 +36,10 @@ const Base = Variant("base")
 const Outline = Variant("outline")
 const Dashed = Variant("dashed")
 const Text = Variant("text")
+
+type TagVariant string
+
+const TagVarDark = TagVariant("dark")
+const TagVarLight = TagVariant("light")
+const TagVarOutline = TagVariant("outline")
+const TagVarLightOutline = TagVariant("light-outline")

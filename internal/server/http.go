@@ -1,21 +1,21 @@
-package httpx
+package server
 
 import (
-	"context"
 	"embed"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/http/pprof"
 	_ "net/http/pprof"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"sync"
+	"time"
 )
 
 type IPage interface {
@@ -23,11 +23,8 @@ type IPage interface {
 	Route() string
 	OnInit()
 	FullData() ([]byte, error)
-	OnNewWsCon(conn *websocket.Conn)
 	OnNewWsMsg(msg *msgs.Message)
 	RouteTo(name string)
-	PaddingMsg() []*msgs.Message
-	Duplicate() IPage
 }
 
 type pageManager struct {
@@ -55,24 +52,25 @@ type Session struct {
 	page    IPage
 }
 
-func (s *Session) HandleFetch(w http.ResponseWriter, r *http.Request) {
-	var data []byte
-	s.Lock()
-	data, err := json.Marshal(s.page.PaddingMsg())
-	if err != nil {
-		data = []byte("[]")
-	}
-	s.Unlock()
-	w.WriteHeader(200)
-	w.Header().Set("Content-Type", "application/json")
-	if string(data) != "[]" {
-		log.Println("write padding message", s.ID, string(data))
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		log.Println("write err:", err)
-	}
-}
+//
+//func (s *Session) HandleFetch(w http.ResponseWriter, r *http.Request) {
+//	var data []byte
+//	s.Lock()
+//	data, err := json.Marshal(s.page.PaddingMsg())
+//	if err != nil {
+//		data = []byte("[]")
+//	}
+//	s.Unlock()
+//	w.WriteHeader(200)
+//	w.Header().Set("Content-Type", "application/json")
+//	if string(data) != "[]" {
+//		log.Println("write padding message", s.ID, string(data))
+//	}
+//	_, err = w.Write(data)
+//	if err != nil {
+//		log.Println("write err:", err)
+//	}
+//}
 
 func (s *Session) HandleDelivery(w http.ResponseWriter, r *http.Request) {
 	bys, err := io.ReadAll(r.Body)
@@ -150,45 +148,9 @@ func (sm *SessionManager) AddSession(s *Session) {
 
 var sessionMgr = &SessionManager{sync.Mutex{}, make(map[string]*Session)}
 
-func sessionMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_id")
-		if err != nil && !errors.Is(err, http.ErrNoCookie) {
-			w.WriteHeader(500)
-			_, err = w.Write([]byte(err.Error()))
-			if err != nil {
-				log.Println("ERROR write error msg to client", err.Error())
-			}
-		}
-		var session *Session
-		if errors.Is(err, http.ErrNoCookie) || cookie == nil || cookie.Value == "" {
-			session = NewSession("")
-			cookie = &http.Cookie{
-				Name:  "session_id",
-				Value: session.ID,
-				Path:  "/",
-			}
-			http.SetCookie(w, cookie)
-			sessionMgr.AddSession(session)
-		} else {
-			session = sessionMgr.GetSession(cookie.Value)
-		}
-		ctx := context.WithValue(r.Context(), "session", session)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
 var mux = http.NewServeMux()
 
-var newReqFunc = make([]func(w http.ResponseWriter, r *http.Request), 0)
-
-func OnNewRequest(f func(w http.ResponseWriter, r *http.Request)) {
-
-	newReqFunc = append(newReqFunc, f)
-}
-
 func Run() {
-
 	for _, p := range pageMgr.pagesRes {
 		p.OnInit()
 		RegMsgHandle(p.Route(), func(message *msgs.Message) {
@@ -203,26 +165,27 @@ func Run() {
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
-	mux.HandleFunc("/api/fetch", func(w http.ResponseWriter, r *http.Request) {
-		uuid := r.URL.Query().Get("uuid")
-		var session = sessionMgr.GetSession(uuid)
-		if session == nil {
-			w.WriteHeader(500)
-			_, _ = w.Write([]byte("session not found"))
-			return
-		}
-		session.HandleFetch(w, r)
-	})
-	mux.HandleFunc("/api/delivery", func(w http.ResponseWriter, r *http.Request) {
-		uuid := r.URL.Query().Get("uuid")
-		var session = sessionMgr.GetSession(uuid)
-		if session == nil {
-			w.WriteHeader(500)
-			_, _ = w.Write([]byte("session not found"))
-			return
-		}
-		session.HandleDelivery(w, r)
-	})
+	mux.HandleFunc("/api/ws", handleWebSocket)
+	//mux.HandleFunc("/api/fetch", func(w http.ResponseWriter, r *http.Request) {
+	//	uuid := r.URL.Query().Get("uuid")
+	//	var session = sessionMgr.GetSession(uuid)
+	//	if session == nil {
+	//		w.WriteHeader(500)
+	//		_, _ = w.Write([]byte("session not found"))
+	//		return
+	//	}
+	//	session.HandleFetch(w, r)
+	//})
+	//mux.HandleFunc("/api/delivery", func(w http.ResponseWriter, r *http.Request) {
+	//	uuid := r.URL.Query().Get("uuid")
+	//	var session = sessionMgr.GetSession(uuid)
+	//	if session == nil {
+	//		w.WriteHeader(500)
+	//		_, _ = w.Write([]byte("session not found"))
+	//		return
+	//	}
+	//	session.HandleDelivery(w, r)
+	//})
 	mux.HandleFunc("/api/page", func(w http.ResponseWriter, r *http.Request) {
 		uuid := r.URL.Query().Get("uuid")
 		var session = sessionMgr.GetSession(uuid)
@@ -237,15 +200,21 @@ func Run() {
 		sendWebContent(w, r)
 	})
 
-	log.Println("open http://localhost:8848")
-	//go func() {
-	//	time.Sleep(time.Millisecond * 500)
-	//	err := openBrowser("http://127.0.0.1:8848")
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//}()
-	log.Fatal(http.ListenAndServe(":8848", mux))
+	listener, err := net.Listen("tcp", ":0")
+	if err != nil {
+		log.Fatalf("Failed to listen on port 0: %v", err)
+	}
+	defer listener.Close()
+	port := listener.Addr().(*net.TCPAddr).Port
+	log.Println("open http://localhost:" + strconv.Itoa(port))
+	go func() {
+		time.Sleep(time.Millisecond * 500)
+		err := openBrowser("http://127.0.0.1:" + strconv.Itoa(port))
+		if err != nil {
+			panic(err)
+		}
+	}()
+	log.Fatal(http.Serve(listener, mux))
 }
 
 // openBrowser 打开系统默认浏览器并访问指定的 URL

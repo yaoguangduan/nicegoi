@@ -1,4 +1,4 @@
-package httpx
+package server
 
 import (
 	"encoding/json"
@@ -47,24 +47,6 @@ func createWsConnContext(route string) *WsConnContext {
 	}
 	return wsc
 }
-
-var (
-	onConnectHandlers = make([]func(route string, c *websocket.Conn), 0)
-)
-
-func Active(route string) bool {
-	ctx, ok := routeCtxMap[route]
-	if !ok {
-		return false
-	}
-	var a = false
-	ctx.connMap.Range(func(key, value interface{}) bool {
-		a = true
-		return false
-	})
-	return a
-}
-
 func Send(route string, eid string, kind string, msg any) {
 	ctx, ok := routeCtxMap[route]
 	if !ok {
@@ -87,13 +69,9 @@ func RegMsgHandle(route string, handler func(*msgs.Message)) {
 	ctx.rcvHandlers = append(ctx.rcvHandlers, handler)
 }
 
-func OnNewWsConn(f func(route string, conn *websocket.Conn)) {
-	onConnectHandlers = append(onConnectHandlers, f)
-}
-
 var handlerLock sync.Mutex
 
-func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	handlerLock.Lock()
 	defer handlerLock.Unlock()
 	conn, err := upgrade.Upgrade(w, r, nil)
@@ -151,9 +129,6 @@ func (wsc *WsConnContext) handleSend() {
 
 func (wsc *WsConnContext) handleConn(conn *websocket.Conn) {
 	wsc.sendLock.Lock()
-	for _, h := range onConnectHandlers {
-		h(wsc.Route, conn)
-	}
 	wsc.connMap.Store(conn, nil)
 	wsc.sendLock.Unlock()
 	for {

@@ -8,7 +8,7 @@ func NewCard(content string) *GoiCard {
 	return NewCardWithTitle("", content)
 }
 func NewCardWithTitle(title string, content string) *GoiCard {
-	card := GoiCard{valuedWidget: newValuedWidget("card", content)}
+	card := GoiCard{valuedWidget: newReadonlyWidget("card", content)}
 	card.e.Set("title", title)
 	card.e.AddChildren(newEmptyWidget(card.e.Eid()+"_A", "card_action"))
 	card.e.AddChildren(newEmptyWidget(card.e.Eid()+"_F", "card_footer"))

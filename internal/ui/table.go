@@ -15,8 +15,9 @@ func NewTable(data interface{}) *Table {
 	if cols == nil || realData == nil {
 		panic("invalid data format")
 	}
-	t := &Table{newValuedWidget("table", realData)}
+	t := &Table{newReadonlyWidget("table", realData)}
 	t.e.Set("columns", cols)
+	t.e.Set("rowKey", cols[0]["colKey"])
 	return t
 }
 

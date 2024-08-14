@@ -3,6 +3,7 @@ package goi
 import (
 	"github.com/yaoguangduan/nicegoi/internal/option/menu"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
+	"github.com/yaoguangduan/nicegoi/internal/server"
 	"github.com/yaoguangduan/nicegoi/internal/ui"
 	"time"
 )
@@ -136,6 +137,12 @@ func Tag(text string) *ui.Tag {
 func TagInput(f func(self *ui.TagInput, values []string)) *ui.TagInput {
 	return ui.NewTagInput(f)
 }
+func Page(name string) *ui.PageWidget {
+	return ui.NewPage(name)
+}
+func RouteTo(name string) {
+}
+
 func Run() {
-	ui.Run()
+	server.Run()
 }

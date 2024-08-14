@@ -94,7 +94,7 @@ func main() {
 	)
 	goi.Divider().SetText("tag")
 	tags := make([]ui.IWidget, 0)
-	variants := []option.Variant{option.Outline, option.Text, option.Base, option.Dashed}
+	variants := []option.TagVariant{option.TagVarDark, option.TagVarOutline, option.TagVarLight, option.TagVarLightOutline}
 	themes := []option.Theme{option.Default, option.Primary, option.Danger, option.Success, option.Warning}
 	for _, variant := range variants {
 		for _, theme := range themes {
@@ -156,6 +156,17 @@ func main() {
 		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
 			goi.MsgWarn(fmt.Sprintf("switch on:%v", on))
 		}))
+
+	goi.Divider().SetText("route to new page")
+	goi.Link("goto /about").SetOnClick(func(self *ui.Link) {
+		self.Page().RouteTo("about")
+	})
+	page := goi.Page("about")
+	page.AddItems(
+		goi.H5("title"),
+		goi.Label("label 1"),
+		goi.Label("label 2"),
+	)
 
 	goi.Divider().SetText("datetime")
 	goi.Box(
@@ -319,12 +330,12 @@ func main() {
 		SetOffset(1, 4)
 
 	goi.H4("align:")
-	goi.Label("left:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowLeft)
+	goi.Label("start:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowStart)
 	goi.Label("center:")
 	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowCenter)
-	goi.Label("right:")
-	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowRight)
+	goi.Label("end:")
+	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowEnd)
 	goi.Label("space around:")
 	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowSpaceAround)
 	goi.Label("space between:")

@@ -3,52 +3,65 @@ package ui
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/yaoguangduan/nicegoi/internal/httpx"
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/server"
 	"github.com/yaoguangduan/nicegoi/internal/util"
-	"github.com/yaoguangduan/nicegoi/internal/ws"
 	"log"
+	"maps"
 	"slices"
+	"strings"
+	"sync"
 )
 
-var elements = make([]IElement, 0)
+var elements = make([]*Element, 0)
 
-type IElement interface {
-	Eid() string
-	Type() string
-	Parent() IElement
-	SetParent(IElement)
-	Children() []IElement
-	AddChildren(...IWidget)
-	RemoveChildren(...IWidget)
-	RemoveChildrenByIndex(...uint32)
-	Modify(key string, value any) IElement
-	Set(key string, value any) IElement
-	Get(key string) any
-}
 type Data map[string]any
 type Element struct {
 	Data     `json:"data"`
-	Par      IElement   `json:"-"`
-	Id       string     `json:"eid"`
-	Kind     string     `json:"type"`
-	Elements []IElement `json:"elements"`
+	Par      *Element                  `json:"-"`
+	Id       string                    `json:"eid"`
+	Kind     string                    `json:"type"`
+	Elements []*Element                `json:"elements"`
+	Page     *Page                     `json:"-"`
+	W        IWidget                   `json:"-"`
+	Handlers []func(msg *msgs.Message) `json:"-"`
 }
 
-func NewElement(kind string) IElement {
+func NewElement(kind string) *Element {
 	e := &Element{
 		Kind:     kind,
-		Elements: make([]IElement, 0),
+		Elements: make([]*Element, 0),
 		Id:       util.AllocEID(),
 		Data:     make(map[string]any),
 	}
 	elements = append(elements, e)
 	return e
 }
-func (e *Element) Parent() IElement {
+
+func (e *Element) Duplicate() *Element {
+	ed := NewElement(e.Kind)
+	for _, c := range e.Elements {
+		ed.Elements = append(ed.Elements, c.Duplicate())
+	}
+	maps.Copy(ed.Data, e.Data)
+	ed.Page = e.Page
+	ed.W = e.W
+	for _, f := range e.Handlers {
+		ed.Handlers = append(ed.Handlers, f)
+	}
+	return ed
+}
+
+func (e *Element) GetWidget() IWidget {
+	return e.W
+}
+func (e *Element) AttachWidget(w IWidget) {
+	e.W = w
+}
+func (e *Element) Parent() *Element {
 	return e.Par
 }
-func (e *Element) SetParent(p IElement) {
+func (e *Element) SetParent(p *Element) {
 	e.Par = p
 }
 func (e *Element) Type() string {
@@ -60,14 +73,14 @@ func (e *Element) SetVisible(visible bool) {
 func (e *Element) Get(key string) any {
 	return e.Data[key]
 }
-func (e *Element) Set(key string, value any) IElement {
+func (e *Element) Set(key string, value any) *Element {
 	//old, exist := e.Data[key]
 	e.Data[key] = value
 	e.OnModify(key)
 	return e
 }
 
-func (e *Element) Modify(key string, value any) IElement {
+func (e *Element) Modify(key string, value any) *Element {
 	e.Data[key] = value
 	return e
 }
@@ -76,12 +89,11 @@ func (e *Element) get(key string) any {
 	return e.Data[key]
 }
 func (e *Element) OnModify(fields ...string) {
-	if !ws.Active() {
-		return
-	}
 	res := make(map[string]any)
 	res["data"] = getUpdated(*e, fields...)
-	ws.Send(e.Id, "diff", res)
+	if e.Page != nil {
+		e.Page.SendMessage(e.Id, "diff", res)
+	}
 }
 
 func getUpdated(e Element, fields ...string) map[string]any {
@@ -100,17 +112,17 @@ func (e *Element) Eid() string {
 }
 func (e *Element) AddChildren(cc ...IWidget) {
 	if e.Elements == nil {
-		e.Elements = make([]IElement, 0)
+		e.Elements = make([]*Element, 0)
 	}
 	added := make([]any, 0)
 	for _, c := range cc {
 		ce := c.Element()
-		ce.SetParent(e)
+		ce.Par = e
 		added = append(added, ce)
 		e.Elements = append(e.Elements, ce)
 	}
-	if ws.Active() {
-		ws.Send(e.Id, "add", added)
+	if e.Page != nil {
+		e.Page.SendMessage(e.Id, "add", added)
 	}
 }
 
@@ -131,10 +143,7 @@ func (e *Element) RemoveChildrenByIndex(ii ...uint32) {
 		removed = append(removed, eid)
 		e.Elements = append(e.Elements[:idx], e.Elements[idx+1:]...)
 	}
-
-	if ws.Active() {
-		ws.Send(e.Id, "remove", removed)
-	}
+	e.Page.SendMessage(e.Id, "remove", removed)
 }
 func (e *Element) RemoveChildren(cc ...IWidget) {
 	if e.Elements == nil {
@@ -142,7 +151,7 @@ func (e *Element) RemoveChildren(cc ...IWidget) {
 	}
 	removed := make([]uint32, 0)
 	for _, c := range cc {
-		idx := slices.IndexFunc(e.Elements, func(element IElement) bool {
+		idx := slices.IndexFunc(e.Elements, func(element *Element) bool {
 			return c.Element().Eid() == element.Eid()
 		})
 		if idx != -1 {
@@ -152,39 +161,115 @@ func (e *Element) RemoveChildren(cc ...IWidget) {
 	e.RemoveChildrenByIndex(removed...)
 }
 
-func (e *Element) Children() []IElement {
+func (e *Element) Children() []*Element {
 	if e.Elements == nil {
-		e.Elements = make([]IElement, 0)
+		e.Elements = make([]*Element, 0)
 	}
 	return e.Elements
 }
 
-type Root struct {
-	Element
+type Page struct {
+	sync.Mutex
+	root    *Element
+	route   string
+	name    string
+	padding []*msgs.Message
 }
 
-var RootElement = &Root{Element{
-	Id:       "EID0",
-	Elements: make([]IElement, 0),
-}}
-
-func (re Root) SendRootMessage(cmd string, data any) {
-	ws.Send(re.Id, cmd, data)
+func (p *Page) Name() string {
+	return p.name
 }
-func Run() {
+func (p *Page) Route() string {
+	return p.route
+}
+func (p *Page) OnInit() {
 	for _, ele := range elements {
 		if ele.Parent() == nil {
-			ele.SetParent(RootElement)
-			RootElement.Elements = append(RootElement.Elements, ele)
+			ele.SetParent(RootPage.root)
+			RootPage.root.Elements = append(RootPage.root.Elements, ele)
 		}
 	}
-	ws.OnNewConn(func(conn *websocket.Conn) {
-		bys, err := json.Marshal(RootElement.Elements)
-		if err != nil {
-			log.Printf("conn full msg error ;%s", err)
+	setElementPage(p.root, p)
+}
+
+func setElementPage(root *Element, p *Page) {
+	root.Page = p
+	for _, e := range root.Elements {
+		setElementPage(e, p)
+	}
+}
+func (p *Page) OnNewWsCon(conn *websocket.Conn) {
+	bys, err := json.Marshal(p.root.Elements)
+	if err != nil {
+		log.Printf("conn full msg error ;%s", err)
+	}
+	log.Printf("send conn msg:%v", msgs.Message{Eid: p.root.Id, Kind: "add", Data: string(bys)})
+	err = conn.WriteJSON(msgs.Message{Eid: p.root.Id, Kind: "add", Data: string(bys)})
+	if err != nil {
+		return
+	}
+}
+func (p *Page) FullData() ([]byte, error) {
+	bys, err := json.Marshal(p.root.Elements)
+	if err != nil {
+		log.Printf("conn full msg error ;%s", err)
+		return nil, err
+	}
+	return bys, nil
+}
+func (p *Page) SendMessage(id, cmd string, data any) {
+	server.Send(p.Route(), id, cmd, data)
+}
+func (p *Page) OnNewWsMsg(msg *msgs.Message) {
+	id := msg.Eid
+	ele := findElement(p.root, id)
+	if ele == nil {
+		log.Printf("ERROR find element fail ,id:%s,msg:%v", msg.Eid, msg)
+		return
+	}
+	for _, f := range ele.Handlers {
+		f(msg)
+	}
+}
+func (p *Page) RouteTo(name string) {
+	p.SendMessage("EID0", "route", name)
+}
+
+func findElement(element *Element, id string) *Element {
+	if element.Id == id {
+		return element
+	} else {
+		for _, ele := range element.Elements {
+			find := findElement(ele, id)
+			if find != nil {
+				return find
+			}
 		}
-		log.Printf("send conn msg:%v", msgs.Message{Eid: RootElement.Eid(), Kind: "data", Data: string(bys)})
-		conn.WriteJSON(msgs.Message{Eid: RootElement.Eid(), Kind: "add", Data: string(bys)})
-	})
-	httpx.Run()
+	}
+	return nil
+}
+func createPage(name string) *Page {
+	e := &Element{Id: "EID0"}
+	var route = name
+	if !strings.HasPrefix(route, "/") {
+		route = "/" + route
+	}
+	page := &Page{name: name, root: e, route: route}
+	server.RegPageRes(page)
+	return page
+}
+
+var RootPage = createPage("/")
+
+type PageWidget struct {
+	valuedWidget
+	p *Page
+}
+
+func NewPage(name string) *PageWidget {
+	return &PageWidget{p: createPage(name)}
+}
+
+func (p *PageWidget) AddItems(widgets ...IWidget) {
+	p.p.root.AddChildren(widgets...)
 }

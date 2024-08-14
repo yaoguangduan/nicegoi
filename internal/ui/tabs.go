@@ -12,7 +12,7 @@ type Tab struct {
 }
 
 func NewTab() *Tab {
-	ret := &Tab{valuedWidget: newValuedWidget("tab", ""), widgets: make(map[string]IWidget)}
+	ret := &Tab{valuedWidget: newReadonlyWidget("tab", ""), widgets: make(map[string]IWidget)}
 	ret.e.Set("place", "top")
 	ret.onValChange(func(v any) {
 		k := v.(string)

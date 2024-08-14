@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
 	"github.com/yaoguangduan/nicegoi/internal/option/menu"
-	"github.com/yaoguangduan/nicegoi/internal/ws"
 )
 
 type Menu struct {
@@ -17,13 +16,13 @@ func NewMenu(m *menu.Option) *Menu {
 	}
 	w.e.Set("collapse", m.Collapse)
 	mu := &Menu{w}
-	ws.RegMsgHandle(w.e.Eid(), func(message *msgs.Message) {
+	w.AddMsgHandler(func(message *msgs.Message) {
 		selected := message.Data.(string)
 		w.e.Modify("value", selected)
 		root := mu.e.Get("root").(*menu.Option)
 		if m.OnChange != nil {
 			m.OnChange(root, findItem(root.MenuItems, selected))
-			w.e.(*Element).OnModify("root")
+			w.e.OnModify("root")
 		}
 	})
 	return mu

@@ -27,7 +27,7 @@ type ListItem struct {
 }
 
 func NewListItem(text string) *ListItem {
-	list := ListItem{valuedWidget: newValuedWidget("list_item", text)}
+	list := ListItem{valuedWidget: newReadonlyWidget("list_item", text)}
 	return &list
 }
 
