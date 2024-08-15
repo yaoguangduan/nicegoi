@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
 	"github.com/yaoguangduan/nicegoi/internal/server"
@@ -11,6 +12,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 var elements = make([]*element, 0)
@@ -243,10 +245,18 @@ func (p *Page) OnNewWsMsg(msg *msgs.Message) {
 		f(msg)
 	}
 }
-func (p *Page) RouteTo(name string) {
-	p.SendMessage("EID0", "route", name)
-}
 
+var QID = atomic.Uint64{}
+
+func (p *Page) RouteTo(name string, data ...any) {
+	if data == nil {
+		p.SendMessage("EID0", "route", map[string]any{"name": name})
+	} else {
+		id := fmt.Sprintf("QID%d", QID.Add(1))
+		server.AppendQueryData(id, data)
+		p.SendMessage("EID0", "route", map[string]any{"name": name, "qid": id})
+	}
+}
 func findElement(element *element, id string) *element {
 	if element.Id == id {
 		return element

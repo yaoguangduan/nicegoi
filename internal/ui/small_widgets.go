@@ -101,7 +101,7 @@ func (gb *Link) Underlined() *Link {
 
 func NewLink(text string) *Link {
 	btn := &Link{valuedWidget: newReadonlyWidget("link", text)}
-	btn.AddMsgHandler(func(msg *msgs.Message) {
+	btn.addMsgHandler(func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -151,12 +151,12 @@ func (gb *Button) Loading(loading bool) *Button {
 }
 func NewButton(text string, onClick func(self *Button)) *Button {
 	btn := &Button{valuedWidget: newReadonlyWidget("button", text), onClick: onClick}
-	btn.AddMsgHandler(func(msg *msgs.Message) {
+	btn.addMsgHandler(func(msg *msgs.Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
 	})
-	btn.e.Set("theme", option.Primary)
+	btn.e.SetAttr("theme", option.Primary)
 	return btn
 }
 

@@ -40,13 +40,13 @@ func (vw *valuedWidget) element() *element {
 func (vw *valuedWidget) Page() server.IPage {
 	return vw.e.Page
 }
-func (vw *valuedWidget) AddMsgHandler(f func(message *msgs.Message)) *valuedWidget {
+func (vw *valuedWidget) addMsgHandler(f func(message *msgs.Message)) *valuedWidget {
 	vw.e.Handlers = append(vw.e.Handlers, f)
 	return vw
 }
 func newValuedWidget(kind string, value any) *valuedWidget {
 	w := &valuedWidget{e: createElement(kind).Set("value", value)}
-	w.AddMsgHandler(func(message *msgs.Message) {
+	w.addMsgHandler(func(message *msgs.Message) {
 		w.e.Modify("value", message.Data)
 		if w.f != nil {
 			w.f(message.Data)
@@ -57,7 +57,7 @@ func newValuedWidget(kind string, value any) *valuedWidget {
 }
 func newReadonlyWidget(kind string, value any) *valuedWidget {
 	w := &valuedWidget{e: createElement(kind).Set("value", value)}
-	w.AddMsgHandler(func(message *msgs.Message) {
+	w.addMsgHandler(func(message *msgs.Message) {
 		if w.f != nil {
 			w.f(message.Data)
 		}
@@ -81,5 +81,5 @@ func (vw *valuedWidget) SetVisible(visible bool) {
 	vw.e.Set("hide", !visible)
 }
 func (vw *valuedWidget) SetDisable(disable bool) {
-	vw.e.Set("disabled", disable)
+	vw.e.SetAttr("disabled", disable)
 }

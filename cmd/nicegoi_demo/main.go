@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/yaoguangduan/nicegoi/goi"
+	"github.com/yaoguangduan/nicegoi/internal/msgs"
 	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/option/menu"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
@@ -230,11 +231,14 @@ func main() {
 
 	goi.Divider().SetText("route to new page")
 	goi.Link("goto /about").SetOnClick(func(self *ui.Link) {
-		self.Page().RouteTo("about")
+		self.Page().RouteTo("about", msgs.EventMsg{
+			EventKind:  "QuerySomething",
+			InputValue: "KKKKK",
+		})
 	})
 	page := goi.Page("about")
 	page.AddItems(
-		goi.H5("title"),
+		goi.H5("welcome!"),
 		goi.Label("label 1"),
 		goi.Label("label 2"),
 	)

@@ -57,3 +57,9 @@ const TagVarDark = TagVariant("dark")
 const TagVarLight = TagVariant("light")
 const TagVarOutline = TagVariant("outline")
 const TagVarLightOutline = TagVariant("light-outline")
+
+type DateTimeMode string
+
+const Date = DateTimeMode("date")
+const Year = DateTimeMode("year")
+const Month = DateTimeMode("month")

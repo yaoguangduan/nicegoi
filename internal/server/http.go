@@ -24,7 +24,13 @@ type IPage interface {
 	OnInit()
 	FullData() ([]byte, error)
 	OnNewWsMsg(msg *msgs.Message)
-	RouteTo(name string)
+	RouteTo(name string, data ...any)
+}
+
+var pageQueryData = make(map[string][]any)
+
+func AppendQueryData(key string, value []any) {
+	pageQueryData[key] = value
 }
 
 type pageManager struct {
@@ -44,16 +50,17 @@ func (pm *pageManager) genPage(route string) IPage {
 
 var pageMgr = &pageManager{pagesRes: make(map[string]IPage)}
 
-type Session struct {
+type Client struct {
 	sync.Mutex
 	ID      string
 	padding []msgs.Message
 	rcv     chan *msgs.Message
 	page    IPage
+	query   []any
 }
 
 //
-//func (s *Session) HandleFetch(w http.ResponseWriter, r *http.Request) {
+//func (s *Client) HandleFetch(w http.ResponseWriter, r *http.Request) {
 //	var data []byte
 //	s.Lock()
 //	data, err := json.Marshal(s.page.PaddingMsg())
@@ -72,7 +79,7 @@ type Session struct {
 //	}
 //}
 
-func (s *Session) HandleDelivery(w http.ResponseWriter, r *http.Request) {
+func (client *Client) HandleDelivery(w http.ResponseWriter, r *http.Request) {
 	bys, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(500)
@@ -84,23 +91,30 @@ func (s *Session) HandleDelivery(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		_, _ = w.Write([]byte(err.Error()))
 	}
-	s.rcv <- msg
+	client.rcv <- msg
 }
 
-func (s *Session) handlePageReq(w http.ResponseWriter, r *http.Request) {
-	if s.page == nil {
+func (client *Client) handlePageReq(w http.ResponseWriter, r *http.Request) {
+	if client.page == nil {
 		route := r.URL.Query().Get("route")
 		p := pageMgr.genPage(route)
 		if p == nil {
 			w.WriteHeader(404)
 			_, _ = w.Write([]byte("404 page not found"))
 		}
-		s.page = p
+		client.page = p
 	}
-	if s.page != nil {
+	if client.page != nil {
+		if r.URL.Query().Has("qid") && r.URL.Query().Get("qid") != "-" {
+			qid := r.URL.Query().Get("qid")
+			if data, ok := pageQueryData[qid]; ok {
+				fmt.Println("client receive query data:", data)
+				client.setQuery(data)
+			}
+		}
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		data, err := s.page.FullData()
+		data, err := client.page.FullData()
 		if err != nil {
 			w.WriteHeader(500)
 			_, _ = w.Write([]byte(err.Error()))
@@ -109,16 +123,20 @@ func (s *Session) handlePageReq(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Session) svrReceiver() {
-	for message := range s.rcv {
-		if s.page != nil {
-			s.page.OnNewWsMsg(message)
+func (client *Client) svrReceiver() {
+	for message := range client.rcv {
+		if client.page != nil {
+			client.page.OnNewWsMsg(message)
 		}
 	}
 }
 
-func NewSession(uuid string) *Session {
-	s := &Session{
+func (client *Client) setQuery(data []any) {
+	client.query = data
+}
+
+func NewClient(uuid string) *Client {
+	s := &Client{
 		ID:      uuid,
 		padding: []msgs.Message{},
 		rcv:     make(chan *msgs.Message, 1024),
@@ -127,12 +145,12 @@ func NewSession(uuid string) *Session {
 	return s
 }
 
-type SessionManager struct {
+type ClientManager struct {
 	sync.Mutex
-	Sessions map[string]*Session
+	Sessions map[string]*Client
 }
 
-func (sm *SessionManager) GetSession(id string) *Session {
+func (sm *ClientManager) GetClient(id string) *Client {
 	session, ok := sm.Sessions[id]
 	if !ok {
 		return nil
@@ -140,20 +158,22 @@ func (sm *SessionManager) GetSession(id string) *Session {
 	return session
 }
 
-func (sm *SessionManager) AddSession(s *Session) {
+func (sm *ClientManager) AddClient(s *Client) {
 	sm.Lock()
 	defer sm.Unlock()
 	sm.Sessions[s.ID] = s
 }
 
-var sessionMgr = &SessionManager{sync.Mutex{}, make(map[string]*Session)}
+var clientMgr = &ClientManager{sync.Mutex{}, make(map[string]*Client)}
 
 var mux = http.NewServeMux()
 
 func Run() {
 	for _, p := range pageMgr.pagesRes {
 		p.OnInit()
-		RegMsgHandle(p.Route(), func(message *msgs.Message) {
+		RegMsgHandle(p.Route(), func(route, uuid string, message *msgs.Message) {
+			client := clientMgr.GetClient(uuid)
+			log.Println("rcv new msg to proc client:", client)
 			p.OnNewWsMsg(message)
 		})
 	}
@@ -168,7 +188,7 @@ func Run() {
 	mux.HandleFunc("/api/ws", handleWebSocket)
 	//mux.HandleFunc("/api/fetch", func(w http.ResponseWriter, r *http.Request) {
 	//	uuid := r.URL.Query().Get("uuid")
-	//	var session = sessionMgr.GetSession(uuid)
+	//	var session = clientMgr.GetClient(uuid)
 	//	if session == nil {
 	//		w.WriteHeader(500)
 	//		_, _ = w.Write([]byte("session not found"))
@@ -178,7 +198,7 @@ func Run() {
 	//})
 	//mux.HandleFunc("/api/delivery", func(w http.ResponseWriter, r *http.Request) {
 	//	uuid := r.URL.Query().Get("uuid")
-	//	var session = sessionMgr.GetSession(uuid)
+	//	var session = clientMgr.GetClient(uuid)
 	//	if session == nil {
 	//		w.WriteHeader(500)
 	//		_, _ = w.Write([]byte("session not found"))
@@ -188,10 +208,10 @@ func Run() {
 	//})
 	mux.HandleFunc("/api/page", func(w http.ResponseWriter, r *http.Request) {
 		uuid := r.URL.Query().Get("uuid")
-		var session = sessionMgr.GetSession(uuid)
+		var session = clientMgr.GetClient(uuid)
 		if session == nil {
-			session = NewSession(uuid)
-			sessionMgr.AddSession(session)
+			session = NewClient(uuid)
+			clientMgr.AddClient(session)
 		}
 		session.handlePageReq(w, r)
 	})

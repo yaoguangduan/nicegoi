@@ -16,7 +16,7 @@ func NewMenu(m *menu.Option) *Menu {
 	}
 	w.e.Set("collapse", m.Collapse)
 	mu := &Menu{w}
-	w.AddMsgHandler(func(message *msgs.Message) {
+	w.addMsgHandler(func(message *msgs.Message) {
 		selected := message.Data.(string)
 		w.e.Modify("value", selected)
 		root := mu.e.Get("root").(*menu.Option)

@@ -21,19 +21,23 @@ var upgrade = websocket.Upgrader{
 type WsConnContext struct {
 	Route       string
 	connMap     sync.Map
-	rcvHandlers []func(msg *msgs.Message)
+	rcvHandlers []func(route, uuid string, msg *msgs.Message)
 	sender      chan *msgs.Message
-	receiver    chan *msgs.Message
 	sendLock    sync.Mutex
 	once        sync.Once
 }
 
-func (wsc *WsConnContext) serverNewCon(conn *websocket.Conn) {
+func (wsc *WsConnContext) serverNewCon(conn *websocket.Conn, uuid string) {
 	wsc.once.Do(func() {
 		go wsc.handleSend()
-		go wsc.handleReceive()
 	})
-	go wsc.handleConn(conn)
+	conn.SetCloseHandler(func(code int, text string) error {
+		log.Println("warn:websocket closed ", code, text, uuid)
+		wsc.connMap.Delete(uuid)
+		return nil
+	})
+	wsc.connMap.Store(uuid, conn)
+	go wsc.handleConn(conn, uuid)
 }
 
 var routeCtxMap = make(map[string]*WsConnContext)
@@ -41,9 +45,8 @@ var routeCtxMap = make(map[string]*WsConnContext)
 func createWsConnContext(route string) *WsConnContext {
 	wsc := &WsConnContext{
 		Route:       route,
-		rcvHandlers: make([]func(msg *msgs.Message), 0),
-		sender:      make(chan *msgs.Message),
-		receiver:    make(chan *msgs.Message),
+		rcvHandlers: make([]func(route, uuid string, msg *msgs.Message), 0),
+		sender:      make(chan *msgs.Message, 1024),
 	}
 	return wsc
 }
@@ -60,7 +63,7 @@ func Send(route string, eid string, kind string, msg any) {
 	ctx.sender <- &msgs.Message{Eid: eid, Kind: kind, Data: string(data)}
 }
 
-func RegMsgHandle(route string, handler func(*msgs.Message)) {
+func RegMsgHandle(route string, handler func(string, string, *msgs.Message)) {
 	ctx, ok := routeCtxMap[route]
 	if !ok {
 		ctx = createWsConnContext(route)
@@ -84,21 +87,14 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	if path == "" {
 		path = "/"
 	}
-	fmt.Println("new route conn:", path)
+	uuid := r.URL.Query().Get("uuid")
+	fmt.Println("new route conn:", path, uuid)
 	context, ok := routeCtxMap[path]
 	if !ok {
 		context = createWsConnContext(path)
 		routeCtxMap[path] = context
 	}
-	context.serverNewCon(conn)
-}
-
-func (wsc *WsConnContext) handleReceive() {
-	for msg := range wsc.receiver {
-		for _, f := range wsc.rcvHandlers {
-			f(msg)
-		}
-	}
+	context.serverNewCon(conn, uuid)
 }
 
 func (wsc *WsConnContext) handleSend() {
@@ -109,41 +105,40 @@ func (wsc *WsConnContext) handleSend() {
 			continue
 		}
 		log.Printf("send new message:%s", string(data))
-		wsc.sendLock.Lock()
-		var toDelete []*websocket.Conn
 		wsc.connMap.Range(func(key, value interface{}) bool {
-			conn := key.(*websocket.Conn)
+			conn := value.(*websocket.Conn)
 			err = conn.WriteMessage(1, data)
 			if err != nil {
-				log.Println("send error:", err)
-				toDelete = append(toDelete, conn)
+				log.Println("send error to conn:", conn.RemoteAddr(), err)
 			}
 			return true
 		})
-		for _, c := range toDelete {
-			wsc.connMap.Delete(c)
-		}
-		wsc.sendLock.Unlock()
 	}
 }
 
-func (wsc *WsConnContext) handleConn(conn *websocket.Conn) {
-	wsc.sendLock.Lock()
-	wsc.connMap.Store(conn, nil)
-	wsc.sendLock.Unlock()
+func (wsc *WsConnContext) handleConn(conn *websocket.Conn, uuid string) {
+	var errCnt = 0
 	for {
 		up := &msgs.Message{}
 		err := conn.ReadJSON(up)
 		if err != nil {
-			log.Println("Read error:", err)
-			err = conn.Close()
-			if err != nil {
-				log.Println("close conn error:", err)
+			log.Println("Read error:", uuid, err)
+			if errCnt > 3 {
+				err = conn.Close()
+				if err != nil {
+					log.Println("close conn error:", uuid, err)
+				}
+				wsc.connMap.Delete(uuid)
+				break
+			} else {
+				errCnt++
 			}
-			wsc.connMap.Delete(conn)
-			break
+			continue
 		}
+		errCnt = 0
 		log.Printf("receive new msg:%+v", up)
-		wsc.receiver <- up
+		for _, f := range wsc.rcvHandlers {
+			f(wsc.Route, uuid, up)
+		}
 	}
 }
