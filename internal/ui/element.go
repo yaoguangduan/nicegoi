@@ -198,6 +198,11 @@ func (p *Page) Route() string {
 	return p.route
 }
 func (p *Page) OnInit() {
+	if p == RootPage {
+		pw := &PageWidget{}
+		p.self = pw
+		pw.p = p
+	}
 	for _, ele := range elements {
 		if ele.Parent() == nil {
 			ele.SetParent(RootPage.root)
