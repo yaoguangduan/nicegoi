@@ -24,7 +24,7 @@ type element struct {
 	Id       string                    `json:"eid"`
 	Kind     string                    `json:"type"`
 	Elements []*element                `json:"elements"`
-	Page     *Page                     `json:"-"`
+	Page     *PageWidget               `json:"-"`
 	W        IWidget                   `json:"-"`
 	Handlers []func(msg *msgs.Message) `json:"-"`
 }
@@ -106,7 +106,7 @@ func (e *element) OnModify(fields ...string) {
 	res["data"] = getUpdated(e.Data, fields...)
 	res["attr"] = getUpdated(e.Attr, fields...)
 	if e.Page != nil {
-		e.Page.SendMessage(e.Id, "diff", res)
+		e.Page.p.SendMessage(e.Id, "diff", res)
 	}
 }
 
@@ -136,7 +136,7 @@ func (e *element) AddChildren(cc ...IWidget) {
 		e.Elements = append(e.Elements, ce)
 	}
 	if e.Page != nil {
-		e.Page.SendMessage(e.Id, "add", added)
+		e.Page.p.SendMessage(e.Id, "add", added)
 	}
 }
 
@@ -157,7 +157,7 @@ func (e *element) RemoveChildrenByIndex(ii ...uint32) {
 		removed = append(removed, eid)
 		e.Elements = append(e.Elements[:idx], e.Elements[idx+1:]...)
 	}
-	e.Page.SendMessage(e.Id, "remove", removed)
+	e.Page.p.SendMessage(e.Id, "remove", removed)
 }
 func (e *element) RemoveChildren(cc ...IWidget) {
 	if e.Elements == nil {
@@ -184,10 +184,11 @@ func (e *element) Children() []*element {
 
 type Page struct {
 	sync.Mutex
-	root    *element
-	route   string
-	name    string
-	padding []*msgs.Message
+	root  *element
+	route string
+	name  string
+	self  *PageWidget
+	title string
 }
 
 func (p *Page) Name() string {
@@ -207,7 +208,7 @@ func (p *Page) OnInit() {
 }
 
 func setElementPage(root *element, p *Page) {
-	root.Page = p
+	root.Page = p.self
 	for _, e := range root.Elements {
 		setElementPage(e, p)
 	}
@@ -224,7 +225,10 @@ func (p *Page) OnNewWsCon(conn *websocket.Conn) {
 	}
 }
 func (p *Page) FullData() ([]byte, error) {
-	bys, err := json.Marshal(p.root.Elements)
+	data := make(map[string]any)
+	data["elements"] = p.root.Elements
+	data["title"] = p.title
+	bys, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("conn full msg error ;%s", err)
 		return nil, err
@@ -277,6 +281,7 @@ func createPage(name string) *Page {
 		route = "/" + route
 	}
 	page := &Page{name: name, root: e, route: route}
+	page.title = name
 	server.RegPageRes(page)
 	return page
 }
@@ -284,14 +289,27 @@ func createPage(name string) *Page {
 var RootPage = createPage("/")
 
 type PageWidget struct {
-	valuedWidget
-	p *Page
+	vw *valuedWidget
+	p  *Page
 }
 
 func NewPage(name string) *PageWidget {
-	return &PageWidget{p: createPage(name)}
+	pw := &PageWidget{p: createPage(name), vw: &valuedWidget{e: createElement("PAGE-" + name)}}
+	pw.p.self = pw
+	return pw
 }
 
 func (p *PageWidget) AddItems(widgets ...IWidget) {
 	p.p.root.AddChildren(widgets...)
+}
+
+func (p *PageWidget) RouteTo(name string, data ...any) {
+	p.p.RouteTo(name, data...)
+}
+func (p *PageWidget) SetTitle(title string) {
+	p.p.title = title
+}
+
+func SetTitle(title string) {
+	RootPage.title = title
 }

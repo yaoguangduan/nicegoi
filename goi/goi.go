@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+func SetTitle(title string) {
+	ui.SetTitle(title)
+}
+
 func Button(name string, onClick func(self *ui.Button)) *ui.Button {
 	return ui.NewButton(name, onClick)
 }

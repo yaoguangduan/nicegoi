@@ -2,12 +2,11 @@ package ui
 
 import (
 	"github.com/yaoguangduan/nicegoi/internal/msgs"
-	"github.com/yaoguangduan/nicegoi/internal/server"
 )
 
 type IWidget interface {
 	element() *element
-	Page() server.IPage
+	Page() *PageWidget
 }
 
 type emptyWidget struct {
@@ -17,14 +16,14 @@ type emptyWidget struct {
 func (w *emptyWidget) element() *element {
 	return w.opt
 }
-func (w *emptyWidget) Page() server.IPage {
+func (w *emptyWidget) Page() *PageWidget {
 	return w.opt.Page
 }
 
 func newEmptyWidget(eid string, kind string) IWidget {
-	element := createElement(kind)
-	element.Id = eid
-	return &emptyWidget{opt: element}
+	e := createElement(kind)
+	e.Id = eid
+	return &emptyWidget{opt: e}
 }
 
 //=======================================================================================
@@ -37,7 +36,7 @@ type valuedWidget struct {
 func (vw *valuedWidget) element() *element {
 	return vw.e
 }
-func (vw *valuedWidget) Page() server.IPage {
+func (vw *valuedWidget) Page() *PageWidget {
 	return vw.e.Page
 }
 func (vw *valuedWidget) addMsgHandler(f func(message *msgs.Message)) *valuedWidget {
@@ -52,7 +51,6 @@ func newValuedWidget(kind string, value any) *valuedWidget {
 			w.f(message.Data)
 		}
 	})
-	w.e.AttachWidget(w)
 	return w
 }
 func newReadonlyWidget(kind string, value any) *valuedWidget {
@@ -62,7 +60,6 @@ func newReadonlyWidget(kind string, value any) *valuedWidget {
 			w.f(message.Data)
 		}
 	})
-	w.e.AttachWidget(w)
 	return w
 
 }

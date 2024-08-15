@@ -415,6 +415,8 @@ func main() {
 	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowSpaceAround)
 	goi.Label("space between:")
 	goi.Row(goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3"), goi.Input(nil).PlaceHolder("span 3")).SetSpan(3, 3, 3).Justify(option.RowSpaceBetween)
+
+	goi.SetTitle("Hello GOI")
 	goi.Run()
 
 }
