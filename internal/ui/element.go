@@ -15,9 +15,9 @@ import (
 
 var elements = make([]*element, 0)
 
-type Data map[string]any
 type element struct {
-	Data     `json:"data"`
+	Data     map[string]any            `json:"data"`
+	Attr     map[string]any            `json:"attr"`
 	Par      *element                  `json:"-"`
 	Id       string                    `json:"eid"`
 	Kind     string                    `json:"type"`
@@ -33,6 +33,7 @@ func createElement(kind string) *element {
 		Elements: make([]*element, 0),
 		Id:       util.AllocEID(),
 		Data:     make(map[string]any),
+		Attr:     make(map[string]any),
 	}
 	elements = append(elements, e)
 	return e
@@ -80,6 +81,16 @@ func (e *element) Set(key string, value any) *element {
 	return e
 }
 
+func (e *element) GetAttr(key string) any {
+	return e.Data[key]
+}
+func (e *element) SetAttr(key string, value any) *element {
+	//old, exist := e.Data[key]
+	e.Attr[key] = value
+	e.OnModify(key)
+	return e
+}
+
 func (e *element) Modify(key string, value any) *element {
 	e.Data[key] = value
 	return e
@@ -90,21 +101,22 @@ func (e *element) get(key string) any {
 }
 func (e *element) OnModify(fields ...string) {
 	res := make(map[string]any)
-	res["data"] = getUpdated(*e, fields...)
+	res["data"] = getUpdated(e.Data, fields...)
+	res["attr"] = getUpdated(e.Attr, fields...)
 	if e.Page != nil {
 		e.Page.SendMessage(e.Id, "diff", res)
 	}
 }
 
-func getUpdated(e element, fields ...string) map[string]any {
-	data := make(map[string]any)
+func getUpdated(data map[string]any, fields ...string) map[string]any {
+	ret := make(map[string]any)
 	for _, field := range fields {
-		val, exist := e.Data[field]
+		val, exist := data[field]
 		if exist {
-			data[field] = val
+			ret[field] = val
 		}
 	}
-	return data
+	return ret
 }
 
 func (e *element) Eid() string {

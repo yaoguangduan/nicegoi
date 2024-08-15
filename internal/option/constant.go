@@ -30,6 +30,20 @@ const Default = Theme("default")
 const Danger = Theme("danger")
 const Warning = Theme("warning")
 
+type Shape string
+
+const Rectangle = Shape("rectangle")
+const Square = Shape("square")
+const Circle = Shape("circle")
+const Round = Shape("round")
+const Mark = Shape("mark") // just for tag widget
+
+type Size string
+
+const Large = Size("large")
+const Small = Size("small")
+const Medium = Size("medium")
+
 type Variant string
 
 const Base = Variant("base")

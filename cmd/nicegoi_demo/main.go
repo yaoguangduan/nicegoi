@@ -43,6 +43,28 @@ func main() {
 		goi.Divider().Vertical(),
 		goi.Button("Warning", nil).SetTheme(option.Warning),
 	)
+	goi.Box(
+		goi.H6("Variant:"),
+		goi.Button("Outline", nil).SetVariant(option.Outline),
+		goi.Button("Dashed", nil).SetVariant(option.Dashed),
+		goi.Button("Text", nil).SetVariant(option.Text),
+	)
+	goi.Box(
+		goi.H6("Shape:"),
+		goi.Button("Rectangle", nil).SetShape(option.Rectangle),
+		goi.Button("", nil).SetIcon(icons.Home).SetShape(option.Square),
+		goi.Button("Round", nil).SetShape(option.Round),
+		goi.Button("", nil).SetIcon(icons.Edit).SetShape(option.Circle),
+	)
+	disable := goi.Button("Disable", nil)
+	disable.SetDisable(true)
+	goi.Box(
+		goi.H6("State/Size:"),
+		disable,
+		goi.Button("Loading", nil).Loading(true),
+		goi.Button("Small", nil).SetSize(option.Small),
+		goi.Button("Large", nil).SetSize(option.Large),
+	)
 
 	goi.Divider().SetText("input:")
 	goi.Box(
@@ -76,6 +98,12 @@ func main() {
 		goi.Link("Danger").SetTheme(option.Danger),
 		goi.Divider().Vertical(),
 		goi.Link("Warning").SetTheme(option.Warning),
+		goi.Divider().Vertical(),
+		goi.Link("Small").SetSize(option.Small),
+		goi.Divider().Vertical(),
+		goi.Link("Large").SetSize(option.Large),
+		goi.Divider().Vertical(),
+		goi.Link("underline").Underlined(),
 	)
 	goi.Divider().SetText("dropdown")
 	goi.Box(
@@ -102,25 +130,46 @@ func main() {
 		}
 	}
 	goi.Box(tags...)
+	goi.Box(
+		goi.H6("Size:"),
+		goi.Tag("medium").SetSize(option.Medium),
+		goi.Tag("small").SetSize(option.Small),
+		goi.Tag("large").SetSize(option.Large),
+	)
+	goi.Box(
+		goi.H6("Shape:"),
+		goi.Tag("round").SetShape(option.Round),
+		goi.Tag("square").SetShape(option.Square),
+		goi.Tag("mark").SetShape(option.Mark),
+	)
 
 	goi.Divider().SetText("tag input")
 	goi.Row(
 		goi.TagInput(func(self *ui.TagInput, values []string) {
 			goi.NotifySuccess("tag input", fmt.Sprintf("%v", values))
-		}).SetTheme(option.Success).PlaceHolder("success theme"),
+		}).SetTheme(option.Success).SetPlaceHolder("success theme"),
 		goi.TagInput(func(self *ui.TagInput, values []string) {
 			goi.NotifyInfo("tag input", fmt.Sprintf("%v", values))
-		}).SetTheme(option.Primary).PlaceHolder("primary theme"),
+		}).SetTheme(option.Primary).SetPlaceHolder("primary theme"),
 		goi.TagInput(func(self *ui.TagInput, values []string) {
 			goi.NotifyInfo("tag input", fmt.Sprintf("%v", values))
-		}).SetTheme(option.Default).PlaceHolder("default theme"),
+		}).SetTheme(option.Default).SetPlaceHolder("default theme"),
 		goi.TagInput(func(self *ui.TagInput, values []string) {
 			goi.NotifyError("tag input", fmt.Sprintf("%v", values))
-		}).SetTheme(option.Danger).PlaceHolder("danger theme"),
+		}).SetTheme(option.Danger).SetPlaceHolder("danger theme"),
 		goi.TagInput(func(self *ui.TagInput, values []string) {
 			goi.NotifyWarn("tag input", fmt.Sprintf("%v", values))
-		}).SetTheme(option.Warning).PlaceHolder("warning theme"),
+		}).SetTheme(option.Warning).SetPlaceHolder("warning theme"),
 	).SetSpan(2, 2, 2, 2, 2).SetGutter(10, 0).Justify(option.RowSpaceAround)
+	goi.Box()
+	goi.Row(
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifySuccess("tag input", fmt.Sprintf("%v", values))
+		}).SetLabel("With Label:").SetPlaceHolder("labeled input"),
+		goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.NotifyInfo("tag input", fmt.Sprintf("%v", values))
+		}).SetMax(3).SetPlaceHolder("max 3 tags"),
+	).SetSpan(4, 4).SetGutter(10, 0).Justify(option.RowStart)
 
 	goi.Divider().SetText("card")
 	goi.Box(
@@ -148,7 +197,29 @@ func main() {
 		goi.Select("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Select, selected string) {
 			goi.MsgWarn("radio will change!")
 			radio.Select(selected)
-		}))
+		}),
+		goi.H6("labeled:"),
+		goi.Select("value 1", "value 1", "value 2", "value 3").SetLabel("Opt:"),
+		goi.H6("placeholder:"),
+		goi.Select("", "value 1", "value 2", "value 3").SetPlaceholder("please select"),
+	)
+	st := goi.Select("banana", "banana", "apple", "orange")
+	goi.Box(
+		st,
+		goi.Divider().Vertical(),
+		goi.Label("clearable:"),
+		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			st.SetClearable(on)
+		}),
+		goi.Label("filterable:"),
+		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			st.SetFilterable(on)
+		}),
+		goi.Label("loading:"),
+		goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			st.SetLoading(on)
+		}),
+	)
 
 	goi.Divider().SetText("switch")
 	goi.Box(

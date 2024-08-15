@@ -77,6 +77,9 @@ func (vw *valuedWidget) onValChange(f func(v any)) {
 	vw.f = f
 }
 
-func (vw *valuedWidget) Visible(visible bool) {
+func (vw *valuedWidget) SetVisible(visible bool) {
 	vw.e.Set("hide", !visible)
+}
+func (vw *valuedWidget) SetDisable(disable bool) {
+	vw.e.Set("disabled", disable)
 }

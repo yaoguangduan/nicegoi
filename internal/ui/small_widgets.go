@@ -69,7 +69,7 @@ func (gb *Link) SetText(text string) {
 	gb.e.Set("value", text)
 }
 func (gb *Link) SetHref(href string) *Link {
-	gb.e.Set("href", href)
+	gb.e.SetAttr("href", href)
 	return gb
 }
 func (gb *Link) SetOnClick(onClick func(self *Link)) *Link {
@@ -85,7 +85,17 @@ func (gb *Link) SetSuffixIcon(icon icons.Icon) *Link {
 	return gb
 }
 func (gb *Link) SetTheme(theme option.Theme) *Link {
-	gb.e.Set("theme", theme)
+	gb.e.SetAttr("theme", theme)
+	return gb
+}
+
+func (gb *Link) SetSize(size option.Size) *Link {
+	gb.e.SetAttr("size", size)
+	return gb
+}
+
+func (gb *Link) Underlined() *Link {
+	gb.e.SetAttr("underline", true)
 	return gb
 }
 
@@ -96,7 +106,7 @@ func NewLink(text string) *Link {
 			btn.onClick(btn)
 		}
 	})
-	btn.e.Set("theme", option.Primary)
+	btn.e.SetAttr("theme", option.Primary)
 	return btn
 }
 
@@ -118,11 +128,25 @@ func (gb *Button) SetOnClick(f func(self *Button)) {
 	gb.onClick = f
 }
 func (gb *Button) SetTheme(theme option.Theme) *Button {
-	gb.e.Set("theme", theme)
+	gb.e.SetAttr("theme", theme)
 	return gb
 }
 func (gb *Button) SetVariant(variant option.Variant) *Button {
-	gb.e.Set("variant", variant)
+	gb.e.SetAttr("variant", variant)
+	return gb
+}
+
+func (gb *Button) SetSize(size option.Size) *Button {
+	gb.e.SetAttr("size", size)
+	return gb
+}
+
+func (gb *Button) SetShape(shape option.Shape) *Button {
+	gb.e.SetAttr("shape", shape)
+	return gb
+}
+func (gb *Button) Loading(loading bool) *Button {
+	gb.e.SetAttr("loading", loading)
 	return gb
 }
 func NewButton(text string, onClick func(self *Button)) *Button {
@@ -211,6 +235,34 @@ func (c *Select) OnChange(f func(self *Select, selected string)) *Select {
 
 func (c *Select) Select(val string) {
 	c.set(val)
+}
+func (c *Select) SetClearable(clearable bool) *Select {
+	c.e.SetAttr("clearable", clearable)
+	return c
+}
+func (c *Select) SetFilterable(filterable bool) *Select {
+	c.e.SetAttr("filterable", filterable)
+	return c
+}
+
+func (c *Select) SetLoading(loading bool) *Select {
+	c.e.SetAttr("loading", loading)
+	return c
+}
+
+func (c *Select) SetLabel(label string) *Select {
+	c.e.SetAttr("label", label)
+	return c
+}
+
+func (c *Select) SetPlaceholder(placeholder string) *Select {
+	c.e.SetAttr("placeholder", placeholder)
+	return c
+}
+
+func (c *Select) SetSize(size option.Size) *Select {
+	c.e.SetAttr("size", size)
+	return c
 }
 
 //========================switch=========================
@@ -481,16 +533,24 @@ type Tag struct {
 
 func NewTag(text string) *Tag {
 	w := &Tag{valuedWidget: newReadonlyWidget("tag", text)}
-	w.e.Set("theme", "primary")
-	w.e.Set("variant", "text")
+	w.e.SetAttr("theme", "primary")
+	w.e.SetAttr("variant", option.TagVarOutline)
 	return w
 }
 func (gb *Tag) SetTheme(theme option.Theme) *Tag {
-	gb.e.Set("theme", theme)
+	gb.e.SetAttr("theme", theme)
 	return gb
 }
 func (gb *Tag) SetVariant(variant option.TagVariant) *Tag {
-	gb.e.Set("variant", variant)
+	gb.e.SetAttr("variant", variant)
+	return gb
+}
+func (gb *Tag) SetSize(size option.Size) *Tag {
+	gb.e.SetAttr("size", size)
+	return gb
+}
+func (gb *Tag) SetShape(shape option.Shape) *Tag {
+	gb.e.SetAttr("shape", shape)
 	return gb
 }
 
@@ -509,16 +569,27 @@ func NewTagInput(onChange func(self *TagInput, values []string)) *TagInput {
 	})
 	return w
 }
-func (w *TagInput) PlaceHolder(pl string) *TagInput {
-	w.e.Set(inputPlaceholder, pl)
+func (w *TagInput) SetPlaceHolder(pl string) *TagInput {
+	w.e.SetAttr(inputPlaceholder, pl)
 	return w
 }
 
 func (w *TagInput) SetTheme(theme option.Theme) *TagInput {
-	w.e.Set("theme", theme)
+	w.e.SetAttr("theme", theme)
 	return w
 }
-func (w TagInput) GetValues() []string {
+
+func (w *TagInput) SetMax(max int) *TagInput {
+	w.e.SetAttr("max", max)
+	return w
+}
+
+func (w *TagInput) SetLabel(label string) *TagInput {
+	w.e.SetAttr("label", label)
+	return w
+}
+
+func (w *TagInput) GetValues() []string {
 	vv := make([]string, 0)
 	for _, vvv := range w.get().([]interface{}) {
 		vv = append(vv, vvv.(string))
