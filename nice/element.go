@@ -1,7 +1,7 @@
 package nice
 
 import (
-	"github.com/yaoguangduan/nicegoi/internal/util"
+	"github.com/yaoguangduan/nicegoi/nice/util"
 	"maps"
 	"slices"
 )

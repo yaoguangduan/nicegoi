@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/yaoguangduan/nicegoi/goi"
-	"github.com/yaoguangduan/nicegoi/internal"
-	"github.com/yaoguangduan/nicegoi/internal/icons"
-	"github.com/yaoguangduan/nicegoi/internal/option"
-	"github.com/yaoguangduan/nicegoi/internal/option/menu"
-	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
+	"github.com/yaoguangduan/nicegoi/nice"
+	"github.com/yaoguangduan/nicegoi/nice/icons"
+	"github.com/yaoguangduan/nicegoi/nice/option"
+	"github.com/yaoguangduan/nicegoi/nice/option/menu"
+	"github.com/yaoguangduan/nicegoi/nice/option/timeline"
 	"time"
 )
 

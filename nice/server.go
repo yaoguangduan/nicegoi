@@ -18,7 +18,8 @@ import (
 
 var mux = http.NewServeMux()
 
-func Run() {
+func start(p string) {
+
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
 	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
@@ -55,10 +56,10 @@ func Run() {
 		}
 	}(listener)
 	port := listener.Addr().(*net.TCPAddr).Port
-	log.Println("open http://localhost:" + strconv.Itoa(port))
+	log.Println("open http://localhost:" + strconv.Itoa(port) + "/" + p)
 	go func() {
 		time.Sleep(time.Millisecond * 500)
-		err = openBrowser("http://127.0.0.1:" + strconv.Itoa(port))
+		err = openBrowser("http://127.0.0.1:" + strconv.Itoa(port) + "/" + p)
 		if err != nil {
 			panic(err)
 		}

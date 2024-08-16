@@ -11,14 +11,31 @@ import (
 	"sync"
 )
 
-type LayoutFunc func(goiCtx GoiContext) []IWidget
+type PageDefFn func(goiCtx GoiContext) []IWidget
+
+func Page(name string, fn PageDefFn) {
+	if fn == nil {
+		return
+	}
+	layoutFuncList = append(layoutFuncList, pageDef{name: name, fn: fn})
+}
 
 var pageQueryData = make(map[string]map[string]any)
 
-var pageLayoutMap = make(map[string]LayoutFunc)
+var layoutFuncList = make([]pageDef, 0)
 
-func Page(name string, fn LayoutFunc) {
-	pageLayoutMap[name] = fn
+type pageDef struct {
+	name string
+	fn   PageDefFn
+}
+
+func findPageDefFn(name string) PageDefFn {
+	for _, d := range layoutFuncList {
+		if d.name == name {
+			return d.fn
+		}
+	}
+	return nil
 }
 
 type pageManager struct {
@@ -31,8 +48,8 @@ func (pm *pageManager) getOrCreate(name string, uuid string) *page {
 	if ok {
 		return p
 	}
-	fn, ok := pageLayoutMap[name]
-	if !ok {
+	fn := findPageDefFn(name)
+	if fn == nil {
 		return nil
 	}
 	pm.Lock()
@@ -48,7 +65,7 @@ var pageMgr = &pageManager{pages: make(map[string]*page)}
 
 type page struct {
 	uuid     string
-	layout   LayoutFunc
+	layout   PageDefFn
 	root     *element
 	route    string
 	name     string
@@ -203,6 +220,18 @@ func findElement(element *element, id string) *element {
 		}
 	}
 	return nil
+}
+func Run(fn PageDefFn) {
+	Page("", fn)
+	if len(layoutFuncList) <= 0 {
+		panic("at least one page is needed")
+	}
+	var p = ""
+	root := findPageDefFn("")
+	if root == nil {
+		p = layoutFuncList[0].name
+	}
+	start(p)
 }
 
 type pageWidget struct {

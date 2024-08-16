@@ -1,9 +1,9 @@
 package goi
 
 import (
-	"github.com/yaoguangduan/nicegoi/internal"
-	"github.com/yaoguangduan/nicegoi/internal/option/menu"
-	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
+	"github.com/yaoguangduan/nicegoi/nice"
+	"github.com/yaoguangduan/nicegoi/nice/option/menu"
+	"github.com/yaoguangduan/nicegoi/nice/option/timeline"
 	"time"
 )
 
@@ -111,6 +111,9 @@ func Tag(text string) *nice.Tag {
 func TagInput(f func(self *nice.TagInput, values []string)) *nice.TagInput {
 	return nice.NewTagInput(f)
 }
-func Run() {
-	nice.Run()
+func AddPage(name string, fn nice.PageDefFn) {
+	nice.Page(name, fn)
+}
+func Run(fn nice.PageDefFn) {
+	nice.Run(fn)
 }

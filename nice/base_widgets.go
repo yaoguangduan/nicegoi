@@ -1,9 +1,9 @@
 package nice
 
 import (
-	"github.com/yaoguangduan/nicegoi/internal/icons"
-	"github.com/yaoguangduan/nicegoi/internal/option"
-	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
+	"github.com/yaoguangduan/nicegoi/nice/icons"
+	"github.com/yaoguangduan/nicegoi/nice/option"
+	"github.com/yaoguangduan/nicegoi/nice/option/timeline"
 	"time"
 )
 

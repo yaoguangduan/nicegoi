@@ -3,7 +3,7 @@ package nice
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/yaoguangduan/nicegoi/internal/option/menu"
+	"github.com/yaoguangduan/nicegoi/nice/option/menu"
 	"testing"
 )
 

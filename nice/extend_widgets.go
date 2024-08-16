@@ -2,9 +2,9 @@ package nice
 
 import (
 	"fmt"
-	"github.com/yaoguangduan/nicegoi/internal/icons"
-	"github.com/yaoguangduan/nicegoi/internal/option"
-	"github.com/yaoguangduan/nicegoi/internal/option/menu"
+	"github.com/yaoguangduan/nicegoi/nice/icons"
+	"github.com/yaoguangduan/nicegoi/nice/option"
+	"github.com/yaoguangduan/nicegoi/nice/option/menu"
 	"reflect"
 	"strings"
 )
@@ -35,14 +35,17 @@ func (w *Box) Vertical() *Box {
 	return w
 }
 
-func (w *Box) Remove(elements ...IWidget) {
+func (w *Box) Remove(elements ...IWidget) *Box {
 	w.e.RemoveChildren(elements...)
+	return w
 }
-func (w *Box) RemoveByIdx(elements ...uint32) {
+func (w *Box) RemoveByIdx(elements ...uint32) *Box {
 	w.e.RemoveChildrenByIndex(elements...)
+	return w
 }
-func (w *Box) AddItems(elements ...IWidget) {
+func (w *Box) AddItems(elements ...IWidget) *Box {
 	w.e.AddChildren(elements...)
+	return w
 }
 
 //===================card==============================
