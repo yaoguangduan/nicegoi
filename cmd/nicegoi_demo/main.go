@@ -435,9 +435,7 @@ func home(goiCtx nice.GoiContext) []nice.IWidget {
 }
 
 func main() {
-
-	nice.Page("hello", hello)
-	nice.Page("", home)
-	goi.Run()
+	goi.AddPage("hello", hello)
+	goi.Run(home)
 
 }
