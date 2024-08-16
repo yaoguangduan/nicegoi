@@ -275,6 +275,10 @@ func home(goiCtx nice.GoiContext) []nice.IWidget {
 					self.Page().RouteTo("hello", map[string]any{"name": gotoInput.GetValue()})
 				}
 			}),
+			goi.Divider().Vertical(),
+			goi.Link("goto no define page").SetOnClick(func(self *nice.Link) {
+				self.Page().RouteTo("something404", nil)
+			}),
 		),
 
 		goi.Divider().SetText("datetime"),
