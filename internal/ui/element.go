@@ -11,7 +11,6 @@ import (
 	"maps"
 	"slices"
 	"strings"
-	"sync"
 	"sync/atomic"
 )
 
@@ -24,7 +23,7 @@ type element struct {
 	Id       string                    `json:"eid"`
 	Kind     string                    `json:"type"`
 	Elements []*element                `json:"elements"`
-	Page     *PageWidget               `json:"-"`
+	Page     *Page                     `json:"-"`
 	W        IWidget                   `json:"-"`
 	Handlers []func(msg *msgs.Message) `json:"-"`
 }
@@ -106,7 +105,7 @@ func (e *element) OnModify(fields ...string) {
 	res["data"] = getUpdated(e.Data, fields...)
 	res["attr"] = getUpdated(e.Attr, fields...)
 	if e.Page != nil {
-		e.Page.p.SendMessage(e.Id, "diff", res)
+		e.Page.SendMessage(e.Id, "diff", res)
 	}
 }
 
@@ -136,7 +135,7 @@ func (e *element) AddChildren(cc ...IWidget) {
 		e.Elements = append(e.Elements, ce)
 	}
 	if e.Page != nil {
-		e.Page.p.SendMessage(e.Id, "add", added)
+		e.Page.SendMessage(e.Id, "add", added)
 	}
 }
 
@@ -157,7 +156,7 @@ func (e *element) RemoveChildrenByIndex(ii ...uint32) {
 		removed = append(removed, eid)
 		e.Elements = append(e.Elements[:idx], e.Elements[idx+1:]...)
 	}
-	e.Page.p.SendMessage(e.Id, "remove", removed)
+	e.Page.SendMessage(e.Id, "remove", removed)
 }
 func (e *element) RemoveChildren(cc ...IWidget) {
 	if e.Elements == nil {
@@ -183,12 +182,12 @@ func (e *element) Children() []*element {
 }
 
 type Page struct {
-	sync.Mutex
-	root  *element
-	route string
-	name  string
-	self  *PageWidget
-	title string
+	root     *element
+	route    string
+	name     string
+	delegate *PageWidget
+	title    string
+	onNewMsg func(id string, cmd string, data any)
 }
 
 func (p *Page) Name() string {
@@ -198,22 +197,11 @@ func (p *Page) Route() string {
 	return p.route
 }
 func (p *Page) OnInit() {
-	if p == RootPage {
-		pw := &PageWidget{}
-		p.self = pw
-		pw.p = p
-	}
-	for _, ele := range elements {
-		if ele.Parent() == nil {
-			ele.SetParent(RootPage.root)
-			RootPage.root.Elements = append(RootPage.root.Elements, ele)
-		}
-	}
 	setElementPage(p.root, p)
 }
 
 func setElementPage(root *element, p *Page) {
-	root.Page = p.self
+	root.Page = p
 	for _, e := range root.Elements {
 		setElementPage(e, p)
 	}
@@ -241,7 +229,11 @@ func (p *Page) FullData() ([]byte, error) {
 	return bys, nil
 }
 func (p *Page) SendMessage(id, cmd string, data any) {
-	server.Send(p.Route(), id, cmd, data)
+	if p.onNewMsg != nil {
+		p.onNewMsg(id, cmd, data)
+	} else {
+		log.Printf("WARN not found on new msg handler")
+	}
 }
 func (p *Page) OnNewWsMsg(msg *msgs.Message) {
 	id := msg.Eid
@@ -253,6 +245,9 @@ func (p *Page) OnNewWsMsg(msg *msgs.Message) {
 	for _, f := range ele.Handlers {
 		f(msg)
 	}
+}
+func (p *Page) SetOnNewMsg(f func(id string, cmd string, data any)) {
+	p.onNewMsg = f
 }
 
 var QID = atomic.Uint64{}
@@ -287,7 +282,6 @@ func createPage(name string) *Page {
 	}
 	page := &Page{name: name, root: e, route: route}
 	page.title = name
-	server.RegPageRes(page)
 	return page
 }
 
@@ -298,21 +292,47 @@ type PageWidget struct {
 	p  *Page
 }
 
+func (pw *PageWidget) MsgSuccess(msg string) {
+	pw.p.SendMessage("EID0", "message", map[string]interface{}{"level": 0, "msg": msg})
+}
+func (pw *PageWidget) MsgInfo(msg string) {
+	pw.p.SendMessage("EID0", "message", map[string]interface{}{"level": 1, "msg": msg})
+}
+func (pw *PageWidget) MsgWarn(msg string) {
+	pw.p.SendMessage("EID0", "message", map[string]interface{}{"level": 2, "msg": msg})
+}
+func (pw *PageWidget) MsgError(msg string) {
+	pw.p.SendMessage("EID0", "message", map[string]interface{}{"level": 3, "msg": msg})
+}
+
+func (pw *PageWidget) NotifySuccess(title, text string) {
+	pw.p.SendMessage("EID0", "notify", map[string]interface{}{"level": 0, "title": title, "text": text})
+}
+func (pw *PageWidget) NotifyInfo(title, text string) {
+	pw.p.SendMessage("EID0", "notify", map[string]interface{}{"level": 1, "title": title, "text": text})
+}
+func (pw *PageWidget) NotifyWarn(title, text string) {
+	pw.p.SendMessage("EID0", "notify", map[string]interface{}{"level": 2, "title": title, "text": text})
+}
+func (pw *PageWidget) NotifyError(title, text string) {
+	pw.p.SendMessage("EID0", "notify", map[string]interface{}{"level": 3, "title": title, "text": text})
+}
+
 func NewPage(name string) *PageWidget {
 	pw := &PageWidget{p: createPage(name), vw: &valuedWidget{e: createElement("PAGE-" + name)}}
-	pw.p.self = pw
+	pw.p.delegate = pw
 	return pw
 }
 
-func (p *PageWidget) AddItems(widgets ...IWidget) {
-	p.p.root.AddChildren(widgets...)
+func (pw *PageWidget) AddItems(widgets ...IWidget) {
+	pw.p.root.AddChildren(widgets...)
 }
 
-func (p *PageWidget) RouteTo(name string, data ...any) {
-	p.p.RouteTo(name, data...)
+func (pw *PageWidget) RouteTo(name string, data ...any) {
+	pw.p.RouteTo(name, data...)
 }
-func (p *PageWidget) SetTitle(title string) {
-	p.p.title = title
+func (pw *PageWidget) SetTitle(title string) {
+	pw.p.title = title
 }
 
 func SetTitle(title string) {

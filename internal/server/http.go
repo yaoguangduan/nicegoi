@@ -14,9 +14,21 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
+
+type ILayout interface {
+	Name() string
+	GenPage() IPage
+}
+
+var layouts = make(map[string]ILayout)
+
+func RegisterLayout(layout ILayout) {
+	layouts[layout.Name()] = layout
+}
 
 type IPage interface {
 	Name() string
@@ -25,6 +37,7 @@ type IPage interface {
 	FullData() ([]byte, error)
 	OnNewWsMsg(msg *msgs.Message)
 	RouteTo(name string, data ...any)
+	SetOnNewMsg(f func(id string, cmd string, data any))
 }
 
 var pageQueryData = make(map[string][]any)
@@ -38,7 +51,7 @@ type pageManager struct {
 }
 
 func RegPageRes(page IPage) {
-	pageMgr.pagesRes[page.Route()] = page
+	//pageMgr.pagesRes[page.Route()] = page
 }
 func (pm *pageManager) genPage(route string) IPage {
 	p, ok := pm.pagesRes[route]
@@ -53,10 +66,13 @@ var pageMgr = &pageManager{pagesRes: make(map[string]IPage)}
 type Client struct {
 	sync.Mutex
 	ID      string
+	name    string
+	layout  ILayout
 	padding []msgs.Message
 	rcv     chan *msgs.Message
 	page    IPage
 	query   []any
+	wsCtx   *WsConnContext
 }
 
 //
@@ -97,12 +113,23 @@ func (client *Client) HandleDelivery(w http.ResponseWriter, r *http.Request) {
 func (client *Client) handlePageReq(w http.ResponseWriter, r *http.Request) {
 	if client.page == nil {
 		route := r.URL.Query().Get("route")
-		p := pageMgr.genPage(route)
-		if p == nil {
+		route = strings.TrimPrefix(route, "/")
+		p, ok := layouts[route]
+		if !ok {
 			w.WriteHeader(404)
 			_, _ = w.Write([]byte("404 page not found"))
+			return
 		}
-		client.page = p
+		client.page = p.GenPage()
+		client.page.OnInit()
+		client.page.SetOnNewMsg(func(id, cmd string, data any) {
+			marshal, err := json.Marshal(data)
+			if err != nil {
+				log.Println("send ws msg marshal error", err)
+				return
+			}
+			client.wsCtx.sender <- &msgs.Message{Eid: id, Kind: cmd, Data: string(marshal)}
+		})
 	}
 	if client.page != nil {
 		if r.URL.Query().Has("qid") && r.URL.Query().Get("qid") != "-" {
@@ -133,6 +160,14 @@ func (client *Client) svrReceiver() {
 
 func (client *Client) setQuery(data []any) {
 	client.query = data
+}
+
+func (client *Client) HandleNewWsMsg(msg *msgs.Message) {
+	client.page.OnNewWsMsg(msg)
+}
+
+func (client *Client) attachWsCtx(wsc *WsConnContext) {
+	client.wsCtx = wsc
 }
 
 func NewClient(uuid string) *Client {
@@ -169,12 +204,11 @@ var clientMgr = &ClientManager{sync.Mutex{}, make(map[string]*Client)}
 var mux = http.NewServeMux()
 
 func Run() {
-	for _, p := range pageMgr.pagesRes {
-		p.OnInit()
-		RegMsgHandle(p.Route(), func(route, uuid string, message *msgs.Message) {
+	for _, layout := range layouts {
+		RegMsgHandle("/"+layout.Name(), func(route, uuid string, message *msgs.Message) {
 			client := clientMgr.GetClient(uuid)
 			log.Println("rcv new msg to proc client:", client)
-			p.OnNewWsMsg(message)
+			client.page.OnNewWsMsg(message)
 		})
 	}
 
@@ -208,15 +242,14 @@ func Run() {
 	//})
 	mux.HandleFunc("/api/page", func(w http.ResponseWriter, r *http.Request) {
 		uuid := r.URL.Query().Get("uuid")
-		var session = clientMgr.GetClient(uuid)
-		if session == nil {
-			session = NewClient(uuid)
-			clientMgr.AddClient(session)
+		var client = clientMgr.GetClient(uuid)
+		if client == nil {
+			client = NewClient(uuid)
+			clientMgr.AddClient(client)
 		}
-		session.handlePageReq(w, r)
+		client.handlePageReq(w, r)
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
 		sendWebContent(w, r)
 	})
 

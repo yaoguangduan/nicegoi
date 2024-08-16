@@ -1,12 +1,13 @@
 package menu
 
-import "github.com/yaoguangduan/nicegoi/internal/ui/icons"
+import (
+	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
+)
 
 type Option struct {
-	Collapse  bool                                 `json:"collapse"`
-	Value     string                               `json:"value"`
-	MenuItems []*ItemOption                        `json:"items,omitempty"`
-	OnChange  func(menu *Option, item *ItemOption) `json:"-"`
+	Collapse  bool          `json:"collapse"`
+	Value     string        `json:"value"`
+	MenuItems []*ItemOption `json:"items,omitempty"`
 }
 type ItemOption struct {
 	Value    string        `json:"value"`
@@ -26,10 +27,6 @@ func NewItem(label, value string) *ItemOption {
 }
 func NewItemWithIcon(label, value string, icon icons.Icon) *ItemOption {
 	return &ItemOption{Label: label, Value: value, Icon: icon}
-}
-func (m *Option) SetOnChange(f func(menu *Option, item *ItemOption)) *Option {
-	m.OnChange = f
-	return m
 }
 func (m *Option) SetCollapse(c bool) *Option {
 	m.Collapse = c

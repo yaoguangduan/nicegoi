@@ -31,31 +31,6 @@ func Input(onChange func(ctx *ui.Input, val string)) *ui.Input {
 func Card(content string) *ui.GoiCard {
 	return ui.NewCard(content)
 }
-func MsgSuccess(msg string) {
-	ui.Message(0, msg)
-}
-func MsgInfo(msg string) {
-	ui.Message(1, msg)
-}
-func MsgWarn(msg string) {
-	ui.Message(2, msg)
-}
-func MsgError(msg string) {
-	ui.Message(3, msg)
-}
-
-func NotifySuccess(title, text string) {
-	ui.Notify(0, title, text)
-}
-func NotifyInfo(title, text string) {
-	ui.Notify(1, title, text)
-}
-func NotifyWarn(title, text string) {
-	ui.Notify(2, title, text)
-}
-func NotifyError(title, text string) {
-	ui.Notify(3, title, text)
-}
 func Label(text string) *ui.Label {
 	return ui.NewLabel(0, text)
 }

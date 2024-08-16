@@ -6,7 +6,6 @@ import (
 
 type IWidget interface {
 	element() *element
-	Page() *PageWidget
 }
 
 type emptyWidget struct {
@@ -17,7 +16,7 @@ func (w *emptyWidget) element() *element {
 	return w.opt
 }
 func (w *emptyWidget) Page() *PageWidget {
-	return w.opt.Page
+	return w.opt.Page.delegate
 }
 
 func newEmptyWidget(eid string, kind string) IWidget {
@@ -37,7 +36,7 @@ func (vw *valuedWidget) element() *element {
 	return vw.e
 }
 func (vw *valuedWidget) Page() *PageWidget {
-	return vw.e.Page
+	return vw.e.Page.delegate
 }
 func (vw *valuedWidget) addMsgHandler(f func(message *msgs.Message)) *valuedWidget {
 	vw.e.Handlers = append(vw.e.Handlers, f)
