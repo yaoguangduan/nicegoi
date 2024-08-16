@@ -1,8 +1,4 @@
-package ui
-
-import (
-	"github.com/yaoguangduan/nicegoi/internal/msgs"
-)
+package nice
 
 type IWidget interface {
 	element() *element
@@ -15,7 +11,7 @@ type emptyWidget struct {
 func (w *emptyWidget) element() *element {
 	return w.opt
 }
-func (w *emptyWidget) Page() *PageWidget {
+func (w *emptyWidget) Page() *pageWidget {
 	return w.opt.Page.delegate
 }
 
@@ -35,16 +31,16 @@ type valuedWidget struct {
 func (vw *valuedWidget) element() *element {
 	return vw.e
 }
-func (vw *valuedWidget) Page() *PageWidget {
+func (vw *valuedWidget) Page() *pageWidget {
 	return vw.e.Page.delegate
 }
-func (vw *valuedWidget) addMsgHandler(f func(message *msgs.Message)) *valuedWidget {
+func (vw *valuedWidget) addMsgHandler(f func(message *Message)) *valuedWidget {
 	vw.e.Handlers = append(vw.e.Handlers, f)
 	return vw
 }
 func newValuedWidget(kind string, value any) *valuedWidget {
 	w := &valuedWidget{e: createElement(kind).Set("value", value)}
-	w.addMsgHandler(func(message *msgs.Message) {
+	w.addMsgHandler(func(message *Message) {
 		w.e.Modify("value", message.Data)
 		if w.f != nil {
 			w.f(message.Data)
@@ -54,7 +50,7 @@ func newValuedWidget(kind string, value any) *valuedWidget {
 }
 func newReadonlyWidget(kind string, value any) *valuedWidget {
 	w := &valuedWidget{e: createElement(kind).Set("value", value)}
-	w.addMsgHandler(func(message *msgs.Message) {
+	w.addMsgHandler(func(message *Message) {
 		if w.f != nil {
 			w.f(message.Data)
 		}

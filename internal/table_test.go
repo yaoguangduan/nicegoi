@@ -1,4 +1,4 @@
-package ui
+package nice
 
 import (
 	"encoding/json"

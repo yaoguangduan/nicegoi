@@ -1,10 +1,9 @@
-package ui
+package nice
 
 import (
-	"github.com/yaoguangduan/nicegoi/internal/msgs"
+	"github.com/yaoguangduan/nicegoi/internal/icons"
 	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
-	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
 	"time"
 )
 
@@ -101,7 +100,7 @@ func (gb *Link) Underlined() *Link {
 
 func NewLink(text string) *Link {
 	btn := &Link{valuedWidget: newReadonlyWidget("link", text)}
-	btn.addMsgHandler(func(msg *msgs.Message) {
+	btn.addMsgHandler(func(msg *Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -151,7 +150,7 @@ func (gb *Button) Loading(loading bool) *Button {
 }
 func NewButton(text string, onClick func(self *Button)) *Button {
 	btn := &Button{valuedWidget: newReadonlyWidget("button", text), onClick: onClick}
-	btn.addMsgHandler(func(msg *msgs.Message) {
+	btn.addMsgHandler(func(msg *Message) {
 		if btn.onClick != nil {
 			btn.onClick(btn)
 		}
@@ -331,6 +330,10 @@ func (w *Input) SetValue(value string) *Input {
 func (w *Input) PlaceHolder(pl string) *Input {
 	w.e.Set(inputPlaceholder, pl)
 	return w
+}
+
+func (w *Input) GetValue() string {
+	return w.get().(string)
 }
 
 // ========================loading=========================

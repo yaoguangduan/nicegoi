@@ -1,4 +1,4 @@
-package msgs
+package nice
 
 type Message struct {
 	Eid  string `json:"eid"`

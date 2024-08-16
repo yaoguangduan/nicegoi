@@ -4,28 +4,35 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/yaoguangduan/nicegoi/goi"
+	"github.com/yaoguangduan/nicegoi/internal"
+	"github.com/yaoguangduan/nicegoi/internal/icons"
 	"github.com/yaoguangduan/nicegoi/internal/option"
 	"github.com/yaoguangduan/nicegoi/internal/option/menu"
 	"github.com/yaoguangduan/nicegoi/internal/option/timeline"
-	"github.com/yaoguangduan/nicegoi/internal/ui"
-	"github.com/yaoguangduan/nicegoi/internal/ui/icons"
 	"time"
 )
 
-func layout() []ui.IWidget {
+func hello(goiCtx nice.GoiContext) []nice.IWidget {
+	label := goi.Label(fmt.Sprintf("hello %v", goiCtx.Query().GetOr("name", "world!")))
+	return []nice.IWidget{
+		label,
+	}
+}
+
+func home(goiCtx nice.GoiContext) []nice.IWidget {
 
 	card := goi.Card("i am card content")
 
 	card.AddActions(goi.Link("card Action"))
 	card.AddFooters(goi.Link("add"), goi.Link("Setting"))
 	card.SetTitle("card title")
-	tab := ui.NewTab().SetPlace(option.Left)
-	loading := ui.NewLoading("loading...")
-	fullLoading := ui.NewLoading("loadingAll...").FullScreen()
+	tab := nice.NewTab().SetPlace(option.Left)
+	loading := nice.NewLoading("loading...")
+	fullLoading := nice.NewLoading("loadingAll...").FullScreen()
 	disable := goi.Button("Disable", nil)
 	disable.SetDisable(true)
 
-	tags := make([]ui.IWidget, 0)
+	tags := make([]nice.IWidget, 0)
 	variants := []option.TagVariant{option.TagVarDark, option.TagVarOutline, option.TagVarLight, option.TagVarLightOutline}
 	themes := []option.Theme{option.Default, option.Primary, option.Danger, option.Success, option.Warning}
 	for _, variant := range variants {
@@ -34,7 +41,7 @@ func layout() []ui.IWidget {
 		}
 	}
 
-	radio := goi.Radio("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Radio, selected string) {
+	radio := goi.Radio("value 1", "value 1", "value 2", "value 3").OnChange(func(self *nice.Radio, selected string) {
 		self.Page().MsgSuccess(fmt.Sprintf("you has selected %s", selected))
 	})
 
@@ -42,18 +49,11 @@ func layout() []ui.IWidget {
 
 	p0 := goi.Progress(20)
 
-	page := goi.Page("about")
-	page.AddItems(
-		goi.H5("welcome!"),
-		goi.Label("label 1"),
-		goi.Label("label 2"),
-	)
-
 	l := goi.List()
-	item1 := ui.NewListItem("list item 1").AddAction(goi.Link("operate 1").SetOnClick(func(self *ui.Link) {
+	item1 := nice.NewListItem("list item 1").AddAction(goi.Link("operate 1").SetOnClick(func(self *nice.Link) {
 		self.Page().MsgInfo("item 1 operated")
 	}))
-	item2 := ui.NewListItem("list item 2").AddAction(goi.Link("operate 2").SetOnClick(func(self *ui.Link) {
+	item2 := nice.NewListItem("list item 2").AddAction(goi.Link("operate 2").SetOnClick(func(self *nice.Link) {
 		self.Page().MsgInfo("item 2 operated")
 	}))
 	l.AddItems(item1, item2)
@@ -71,14 +71,16 @@ func layout() []ui.IWidget {
 	db := goi.Drawer("Header").AddWidgets(goi.Label("drawer content")).SetPlace(option.Bottom)
 
 	badge := goi.Badge(29)
-	return []ui.IWidget{
+
+	gotoInput := goi.Input(nil).PlaceHolder("input your name")
+	return []nice.IWidget{
 
 		goi.H1("Hello NiceGOI!"),
 
 		goi.Divider().SetText("button"),
 		goi.Box(
 			goi.H6("Button:"),
-			goi.Button("button", func(self *ui.Button) {
+			goi.Button("button", func(self *nice.Button) {
 				self.Page().MsgWarn("button clicked!")
 			}),
 			goi.Divider().Vertical(),
@@ -115,7 +117,7 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("input:"),
 		goi.Box(
 			goi.H6("Input:"),
-			goi.Input(func(ctx *ui.Input, val string) {
+			goi.Input(func(ctx *nice.Input, val string) {
 				ctx.Page().MsgWarn(fmt.Sprintf("you input:%s", val))
 			}),
 			goi.Divider().Vertical(),
@@ -132,7 +134,7 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("link"),
 		goi.Box(
 			goi.H6("link:"),
-			goi.Link("点击").SetOnClick(func(self *ui.Link) {
+			goi.Link("点击").SetOnClick(func(self *nice.Link) {
 				self.Page().NotifySuccess("I am Title", "you clicked link!")
 			}),
 			goi.Divider().Vertical(),
@@ -153,16 +155,16 @@ func layout() []ui.IWidget {
 		),
 		goi.Divider().SetText("dropdown"),
 		goi.Box(
-			goi.Dropdown("more...", "option 1", "option 2", "option 3").OnClick(func(self *ui.Dropdown, value string) {
+			goi.Dropdown("more...", "option 1", "option 2", "option 3").OnClick(func(self *nice.Dropdown, value string) {
 				self.Page().MsgSuccess(fmt.Sprintf("you clicked:%s", value))
 			}),
-			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Dashed).OnClick(func(self *ui.Dropdown, value string) {
+			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Dashed).OnClick(func(self *nice.Dropdown, value string) {
 				self.Page().MsgSuccess(fmt.Sprintf("you clicked:%s", value))
 			}),
-			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Base).OnClick(func(self *ui.Dropdown, value string) {
+			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Base).OnClick(func(self *nice.Dropdown, value string) {
 				self.Page().MsgSuccess(fmt.Sprintf("you clicked:%s", value))
 			}),
-			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Outline).OnClick(func(self *ui.Dropdown, value string) {
+			goi.Dropdown("more...", "option 1", "option 2", "option 3").SetVariant(option.Outline).OnClick(func(self *nice.Dropdown, value string) {
 				self.Page().MsgSuccess(fmt.Sprintf("you clicked:%s", value))
 			}),
 		),
@@ -183,28 +185,28 @@ func layout() []ui.IWidget {
 
 		goi.Divider().SetText("tag input"),
 		goi.Row(
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifySuccess("tag input", fmt.Sprintf("%v", values))
 			}).SetTheme(option.Success).SetPlaceHolder("success theme"),
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifyInfo("tag input", fmt.Sprintf("%v", values))
 			}).SetTheme(option.Primary).SetPlaceHolder("primary theme"),
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifyInfo("tag input", fmt.Sprintf("%v", values))
 			}).SetTheme(option.Default).SetPlaceHolder("default theme"),
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifyError("tag input", fmt.Sprintf("%v", values))
 			}).SetTheme(option.Danger).SetPlaceHolder("danger theme"),
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifyWarn("tag input", fmt.Sprintf("%v", values))
 			}).SetTheme(option.Warning).SetPlaceHolder("warning theme"),
 		).SetSpan(2, 2, 2, 2, 2).SetGutter(10, 0).Justify(option.RowSpaceAround),
 		goi.Box(),
 		goi.Row(
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifySuccess("tag input", fmt.Sprintf("%v", values))
 			}).SetLabel("With Label:").SetPlaceHolder("labeled input"),
-			goi.TagInput(func(self *ui.TagInput, values []string) {
+			goi.TagInput(func(self *nice.TagInput, values []string) {
 				self.Page().NotifyInfo("tag input", fmt.Sprintf("%v", values))
 			}).SetMax(3).SetPlaceHolder("max 3 tags"),
 		).SetSpan(4, 4).SetGutter(10, 0).Justify(option.RowStart),
@@ -217,7 +219,7 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("checkbox"),
 		goi.Box(
 			goi.H6("checkbox:"),
-			goi.Checkbox(true, "check me").OnChange(func(self *ui.Checkbox, checked bool) {
+			goi.Checkbox(true, "check me").OnChange(func(self *nice.Checkbox, checked bool) {
 				self.Page().MsgInfo(fmt.Sprintf("checkbox change:%v", checked))
 			})),
 
@@ -229,7 +231,7 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("select"),
 		goi.Box(
 			goi.H6("select:"),
-			goi.Select("value 1", "value 1", "value 2", "value 3").OnChange(func(self *ui.Select, selected string) {
+			goi.Select("value 1", "value 1", "value 2", "value 3").OnChange(func(self *nice.Select, selected string) {
 				self.Page().MsgWarn("radio will change!")
 				radio.Select(selected)
 			}),
@@ -242,15 +244,15 @@ func layout() []ui.IWidget {
 			st,
 			goi.Divider().Vertical(),
 			goi.Label("clearable:"),
-			goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			goi.Switch(false).OnChange(func(self *nice.Switch, on bool) {
 				st.SetClearable(on)
 			}),
 			goi.Label("filterable:"),
-			goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			goi.Switch(false).OnChange(func(self *nice.Switch, on bool) {
 				st.SetFilterable(on)
 			}),
 			goi.Label("loading:"),
-			goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			goi.Switch(false).OnChange(func(self *nice.Switch, on bool) {
 				st.SetLoading(on)
 			}),
 		),
@@ -258,19 +260,27 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("switch"),
 		goi.Box(
 			goi.H6("switch:"),
-			goi.Switch(false).OnChange(func(self *ui.Switch, on bool) {
+			goi.Switch(false).OnChange(func(self *nice.Switch, on bool) {
 				self.Page().MsgWarn(fmt.Sprintf("switch on:%v", on))
 			})),
 
 		goi.Divider().SetText("route to new page"),
-		goi.Link("goto /about").SetOnClick(func(self *ui.Link) {
-
-		}),
+		goi.Box(
+			gotoInput,
+			goi.Link("goto /hello with query param").SetOnClick(func(self *nice.Link) {
+				var name = gotoInput.GetValue()
+				if name == "" {
+					self.Page().RouteTo("hello", nil)
+				} else {
+					self.Page().RouteTo("hello", map[string]any{"name": gotoInput.GetValue()})
+				}
+			}),
+		),
 
 		goi.Divider().SetText("datetime"),
 		goi.Box(
 			goi.H6("datetime:"),
-			goi.DateTime(time.Now()).OnChange(func(self *ui.DateTime, datetime time.Time, err error) {
+			goi.DateTime(time.Now()).OnChange(func(self *nice.DateTime, datetime time.Time, err error) {
 				if err != nil {
 					self.Page().MsgError("datetime err:" + err.Error())
 				} else {
@@ -284,7 +294,7 @@ func layout() []ui.IWidget {
 			l),
 
 		goi.Divider().SetText("menu"),
-		goi.Box(goi.H6("menu:"), ui.NewMenu(m).SetOnChange(func(self *ui.Menu, root *menu.Option, item *menu.ItemOption) {
+		goi.Box(goi.H6("menu:"), nice.NewMenu(m).SetOnChange(func(self *nice.Menu, root *menu.Option, item *menu.ItemOption) {
 			self.Page().MsgWarn("menu selected:" + item.Value)
 			v4, err := uuid.NewGen().NewV4()
 			if err == nil {
@@ -295,18 +305,18 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("tab"),
 		goi.Box(
 			goi.H6("Tabs:"),
-			goi.Radio("left", "top", "left", "right", "bottom").OnChange(func(self *ui.Radio, selected string) {
+			goi.Radio("left", "top", "left", "right", "bottom").OnChange(func(self *nice.Radio, selected string) {
 				tab.SetPlace(option.Placement(selected))
 			}),
 			tab.Add("button", goi.Button("button", nil)).
-				AddWithIcon("link", icons.Link, goi.Link("Remove Cur Tab").SetOnClick(func(self *ui.Link) {
+				AddWithIcon("link", icons.Link, goi.Link("Remove Cur Tab").SetOnClick(func(self *nice.Link) {
 					tab.Remove("link")
 				})).
 				Add("input", goi.Input(nil)).
-				SetOnChange(func(key string, widget ui.IWidget) {
+				SetOnChange(func(key string, widget nice.IWidget) {
 					tab.Page().MsgSuccess("tag change " + key)
 					if key == "button" {
-						b := widget.(*ui.Button)
+						b := widget.(*nice.Button)
 						v4, err := uuid.NewGen().NewV4()
 						if err == nil {
 							b.SetText(v4.String()[0:5])
@@ -318,13 +328,13 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("table"),
 		goi.Box(
 			goi.H6("table:"),
-			ui.NewTable([]interface{}{menu.NewItem("label1", "value1"), menu.NewItem("label2", "value2")}),
+			nice.NewTable([]interface{}{menu.NewItem("label1", "value1"), menu.NewItem("label2", "value2")}),
 		),
 
 		goi.Divider().SetText("loading"),
 		goi.Box(
 			goi.H6("Loading:"),
-			goi.Button("start/stop", func(self *ui.Button) {
+			goi.Button("start/stop", func(self *nice.Button) {
 				if loading.GetState() {
 					loading.Stop()
 				} else {
@@ -334,7 +344,7 @@ func layout() []ui.IWidget {
 			loading.AddItems(goi.Card("this is a long content for loading show").SetWidth(300)),
 			goi.Divider().Vertical(),
 			goi.H6("full screen:"),
-			goi.Button("full screen loading", func(self *ui.Button) {
+			goi.Button("full screen loading", func(self *nice.Button) {
 				fullLoading.Start()
 				go func() {
 					time.Sleep(time.Second * 2)
@@ -348,20 +358,20 @@ func layout() []ui.IWidget {
 
 		goi.H6("progress:"),
 		goi.Box(
-			goi.Button("add", func(self *ui.Button) {
+			goi.Button("add", func(self *nice.Button) {
 				p0.Update(p0.Current() + 2)
 				p.Update(p.Current() + 2)
 			}),
 			p,
 			goi.Divider().Vertical(),
 			goi.H6("error:"),
-			goi.Progress(45).CircleStyle().MarkState(ui.ProgressError),
+			goi.Progress(45).CircleStyle().MarkState(nice.ProgressError),
 			goi.Divider().Vertical(),
 			goi.H6("warning:"),
-			goi.Progress(45).CircleStyle().MarkState(ui.ProgressWarning),
+			goi.Progress(45).CircleStyle().MarkState(nice.ProgressWarning),
 			goi.Divider().Vertical(),
 			goi.H6("success:"),
-			goi.Progress(100).CircleStyle().MarkState(ui.ProgressSuccess),
+			goi.Progress(100).CircleStyle().MarkState(nice.ProgressSuccess),
 		),
 		goi.Divider().SetText("description"),
 		goi.Description(2, map[string]string{"Name": "NceGoi", "Tel": "12288884444", "Area": "China SHangHai", "Address": "XUJIAHU DASHIJIE"}),
@@ -369,7 +379,7 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("badge"),
 		goi.Box(
 			goi.H6("Badge:"),
-			badge.SetChild(goi.Button("add", func(self *ui.Button) {
+			badge.SetChild(goi.Button("add", func(self *nice.Button) {
 				badge.Incr(1)
 			})),
 		),
@@ -383,16 +393,16 @@ func layout() []ui.IWidget {
 		goi.Divider().SetText("drawer"),
 		dr, dl, dt, db,
 		goi.Box(
-			goi.Button("right", func(self *ui.Button) {
+			goi.Button("right", func(self *nice.Button) {
 				dr.Open()
 			}),
-			goi.Button("left", func(self *ui.Button) {
+			goi.Button("left", func(self *nice.Button) {
 				dl.Open()
 			}),
-			goi.Button("top", func(self *ui.Button) {
+			goi.Button("top", func(self *nice.Button) {
 				dt.Open()
 			}),
-			goi.Button("bottom", func(self *ui.Button) {
+			goi.Button("bottom", func(self *nice.Button) {
 				db.Open()
 			}),
 		),
@@ -426,8 +436,8 @@ func layout() []ui.IWidget {
 
 func main() {
 
-	goi.SetTitle("Hello GOI")
-	ui.PageN("", layout)
+	nice.Page("hello", hello)
+	nice.Page("", home)
 	goi.Run()
 
 }
