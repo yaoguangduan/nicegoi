@@ -63,3 +63,12 @@ type DateTimeMode string
 const Date = DateTimeMode("date")
 const Year = DateTimeMode("year")
 const Month = DateTimeMode("month")
+
+type ProgressState string
+
+const (
+	ProgressActive  ProgressState = "active"
+	ProgressError   ProgressState = "error"
+	ProgressWarning ProgressState = "warning"
+	ProgressSuccess ProgressState = "success"
+)

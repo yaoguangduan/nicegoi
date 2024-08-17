@@ -14,27 +14,6 @@ var upgrade = websocket.Upgrader{
 		return true // 允许所有来源
 	},
 }
-
-type WsConnContext struct {
-	Route       string
-	conn        *websocket.Conn
-	rcvHandlers []func(route, uuid string, msg *Message)
-	sendLock    sync.Mutex
-	once        sync.Once
-	uuid        string
-}
-
-var connCtxMap = make(map[string]*WsConnContext)
-
-func createWsConnContext(uuid string, path string) *WsConnContext {
-	wsc := &WsConnContext{
-		uuid:        uuid,
-		Route:       path,
-		rcvHandlers: make([]func(route, uuid string, msg *Message), 0),
-	}
-	return wsc
-}
-
 var handlerLock sync.Mutex
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {

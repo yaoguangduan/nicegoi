@@ -18,7 +18,7 @@ func (gb *Label) SetText(text string) *Label {
 	return gb
 }
 
-func NewLabel(level int, text string) *Label {
+func createLabel(level int, text string) *Label {
 	vw := newReadonlyWidget("label", text)
 	vw.e.Set("level", level)
 	l := &Label{valuedWidget: vw}
@@ -36,7 +36,7 @@ func (d *Divider) SetText(text string) *Divider {
 	return d
 }
 
-func NewDivider() *Divider {
+func createDivider() *Divider {
 	vw := newReadonlyWidget("divider", "")
 	vw.e.Set("layout", "horizontal")
 	vw.e.Set("align", "left")
@@ -166,7 +166,7 @@ type Checkbox struct {
 	onChange func(self *Checkbox, v bool)
 }
 
-func NewCheckbox(state bool, text string) *Checkbox {
+func createCheckbox(state bool, text string) *Checkbox {
 	c := &Checkbox{valuedWidget: newValuedWidget("checkbox", state)}
 	c.e.Set("text", text)
 	return c
@@ -188,7 +188,7 @@ type Radio struct {
 	onChange func(self *Radio, v string)
 }
 
-func NewRadio(selected string, items ...string) *Radio {
+func createRadio(selected string, items ...string) *Radio {
 	c := &Radio{valuedWidget: newValuedWidget("radio", selected)}
 	c.e.Set("items", items)
 	return c
@@ -214,7 +214,7 @@ type Select struct {
 	onChange func(self *Select, v string)
 }
 
-func NewSelect(selected string, items ...string) *Select {
+func createSelect(selected string, items ...string) *Select {
 	c := &Select{valuedWidget: newValuedWidget("select", selected)}
 	c.e.Set("items", items)
 	return c
@@ -271,7 +271,7 @@ type Switch struct {
 	onChange func(self *Switch, v string)
 }
 
-func NewSwitch(on bool) *Switch {
+func createSwitch(on bool) *Switch {
 	c := &Switch{valuedWidget: newValuedWidget("switch", on)}
 	return c
 }
@@ -298,7 +298,7 @@ type Input struct {
 	*valuedWidget
 }
 
-func NewInput(onChange func(self *Input, val string)) *Input {
+func createInput(onChange func(self *Input, val string)) *Input {
 	w := &Input{valuedWidget: newValuedWidget("input", "")}
 	w.onValChange(func(v any) {
 		if onChange != nil {
@@ -342,7 +342,7 @@ type Loading struct {
 	*valuedWidget
 }
 
-func NewLoading(text string) *Loading {
+func createLoading(text string) *Loading {
 	w := &Loading{valuedWidget: newValuedWidget("loading", false)}
 	w.e.Set("text", text)
 	return w
@@ -370,20 +370,11 @@ func (w *Loading) FullScreen() *Loading {
 
 //========================progress=========================
 
-type state string
-
-const (
-	ProgressActive  state = "active"
-	ProgressError   state = "error"
-	ProgressWarning state = "warning"
-	ProgressSuccess state = "success"
-)
-
 type Progress struct {
 	*valuedWidget
 }
 
-func NewProgress(percent float32) *Progress {
+func createProgress(percent float32) *Progress {
 	w := &Progress{valuedWidget: newValuedWidget("progress", percent)}
 	w.e.Set("theme", "line")
 	return w
@@ -395,7 +386,7 @@ func (w *Progress) Update(percent float32) *Progress {
 func (w *Progress) Current() float32 {
 	return w.get().(float32)
 }
-func (w *Progress) MarkState(s state) *Progress {
+func (w *Progress) MarkState(s option.ProgressState) *Progress {
 	w.e.Set("state", s)
 	return w
 }
@@ -410,7 +401,7 @@ type Badge struct {
 	*valuedWidget
 }
 
-func NewBadge(count int) *Badge {
+func createBadge(count int) *Badge {
 	w := &Badge{valuedWidget: newValuedWidget("badge", count)}
 	return w
 }
@@ -437,7 +428,7 @@ type Description struct {
 }
 
 // NewDescription map[string]string/struct
-func NewDescription(cols int, daa interface{}) *Description {
+func createDescription(cols int, daa interface{}) *Description {
 	w := &Description{valuedWidget: newReadonlyWidget("description", cols)}
 	w.e.Set("data", daa)
 	return w
@@ -451,7 +442,7 @@ type DateTime struct {
 	*valuedWidget
 }
 
-func NewDateTime(datetime time.Time) *DateTime {
+func createDateTime(datetime time.Time) *DateTime {
 	w := &DateTime{valuedWidget: newValuedWidget("datetime", datetime.Format(datetimeFormat))}
 	return w
 }
@@ -479,7 +470,7 @@ type Timeline struct {
 	*valuedWidget
 }
 
-func NewTimeline(options ...*timeline.Option) *Timeline {
+func createTimeline(options ...*timeline.Option) *Timeline {
 	w := &Timeline{newReadonlyWidget("timeline", options)}
 	w.e.Set("layout", "vertical")
 	return w
@@ -502,7 +493,7 @@ type Dropdown struct {
 	f func(dropdown *Dropdown, value string)
 }
 
-func NewDropdown(text string, opts ...string) *Dropdown {
+func createDropdown(text string, opts ...string) *Dropdown {
 	w := &Dropdown{valuedWidget: newReadonlyWidget("dropdown", "")}
 	w.e.Set("options", opts)
 	w.e.Set("text", text)
@@ -534,7 +525,7 @@ type Tag struct {
 	*valuedWidget
 }
 
-func NewTag(text string) *Tag {
+func createTag(text string) *Tag {
 	w := &Tag{valuedWidget: newReadonlyWidget("tag", text)}
 	w.e.SetAttr("theme", "primary")
 	w.e.SetAttr("variant", option.TagVarOutline)
@@ -563,7 +554,7 @@ type TagInput struct {
 	*valuedWidget
 }
 
-func NewTagInput(onChange func(self *TagInput, values []string)) *TagInput {
+func createTagInput(onChange func(self *TagInput, values []string)) *TagInput {
 	w := &TagInput{valuedWidget: newValuedWidget("tag-input", make([]string, 0))}
 	w.onValChange(func(v any) {
 		if onChange != nil {

@@ -116,7 +116,7 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 		ctx.Button("", nil).SetIcon(icons.Edit).SetShape(option.Circle),
 	)
 	ctx.Box(
-		ctx.H6("State/Size:"),
+		ctx.H6("ProgressState/Size:"),
 		disable,
 		ctx.Button("Loading", nil).Loading(true),
 		ctx.Button("Small", nil).SetSize(option.Small),
@@ -382,13 +382,13 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 		p,
 		ctx.Divider().Vertical(),
 		ctx.H6("error:"),
-		ctx.Progress(45).CircleStyle().MarkState(nicegoi.ProgressError),
+		ctx.Progress(45).CircleStyle().MarkState(option.ProgressError),
 		ctx.Divider().Vertical(),
 		ctx.H6("warning:"),
-		ctx.Progress(45).CircleStyle().MarkState(nicegoi.ProgressWarning),
+		ctx.Progress(45).CircleStyle().MarkState(option.ProgressWarning),
 		ctx.Divider().Vertical(),
 		ctx.H6("success:"),
-		ctx.Progress(100).CircleStyle().MarkState(nicegoi.ProgressSuccess),
+		ctx.Progress(100).CircleStyle().MarkState(option.ProgressSuccess),
 	)
 	ctx.Divider().SetText("description")
 	ctx.Description(2, map[string]string{"Name": "NceGoi", "Tel": "12288884444", "Area": "China SHangHai", "Address": "XUJIAHU DASHIJIE"})

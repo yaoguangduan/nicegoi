@@ -254,154 +254,154 @@ func (pw *pageInstCreateContext) Box(elements ...IWidget) *Box {
 	return tmp
 }
 func (pw *pageInstCreateContext) List() *List {
-	tmp := NewList()
+	tmp := createList()
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Input(onChange func(ctx *Input, val string)) *Input {
-	tmp := NewInput(onChange)
+	tmp := createInput(onChange)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Card(content string) *Card {
-	tmp := NewCard(content)
+	tmp := createCard(content)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Label(text string) *Label {
-	tmp := NewLabel(0, text)
+	tmp := createLabel(0, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H1(text string) *Label {
-	tmp := NewLabel(1, text)
+	tmp := createLabel(1, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H2(text string) *Label {
-	tmp := NewLabel(2, text)
+	tmp := createLabel(2, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H3(text string) *Label {
-	tmp := NewLabel(3, text)
+	tmp := createLabel(3, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H4(text string) *Label {
-	tmp := NewLabel(4, text)
+	tmp := createLabel(4, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H5(text string) *Label {
-	tmp := NewLabel(5, text)
+	tmp := createLabel(5, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) H6(text string) *Label {
-	tmp := NewLabel(6, text)
+	tmp := createLabel(6, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Checkbox(state bool, text string) *Checkbox {
-	tmp := NewCheckbox(state, text)
+	tmp := createCheckbox(state, text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Radio(selected string, items ...string) *Radio {
-	tmp := NewRadio(selected, items...)
+	tmp := createRadio(selected, items...)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Select(selected string, items ...string) *Select {
-	tmp := NewSelect(selected, items...)
+	tmp := createSelect(selected, items...)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Switch(on bool) *Switch {
-	tmp := NewSwitch(on)
+	tmp := createSwitch(on)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) DateTime(t time.Time) *DateTime {
-	tmp := NewDateTime(t)
+	tmp := createDateTime(t)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Menu(opt *menu.Option) *Menu {
-	tmp := NewMenu(opt)
+	tmp := createMenu(opt)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Tab() *Tab {
-	tmp := NewTab()
+	tmp := createTab()
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Table(data interface{}) *Table {
-	tmp := NewTable(data)
+	tmp := createTable(data)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Loading(text string) *Loading {
-	tmp := NewLoading(text)
+	tmp := createLoading(text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Progress(percent float32) *Progress {
-	tmp := NewProgress(percent)
+	tmp := createProgress(percent)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Description(cols int, data interface{}) *Description {
-	tmp := NewDescription(cols, data)
+	tmp := createDescription(cols, data)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Badge(count int) *Badge {
-	tmp := NewBadge(count)
+	tmp := createBadge(count)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Divider() *Divider {
-	tmp := NewDivider()
+	tmp := createDivider()
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Row(items ...IWidget) *Row {
-	tmp := NewRow(items...)
+	tmp := createRow(items...)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 
 func (pw *pageInstCreateContext) Timeline(opts ...*timeline.Option) *Timeline {
-	tmp := NewTimeline(opts...)
+	tmp := createTimeline(opts...)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Drawer(header string) *Drawer {
-	tmp := NewDrawer(header)
+	tmp := createDrawer(header)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Dropdown(text string, options ...string) *Dropdown {
-	tmp := NewDropdown(text, options...)
+	tmp := createDropdown(text, options...)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) Tag(text string) *Tag {
-	tmp := NewTag(text)
+	tmp := createTag(text)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }
 func (pw *pageInstCreateContext) TagInput(f func(self *TagInput, values []string)) *TagInput {
-	tmp := NewTagInput(f)
+	tmp := createTagInput(f)
 	pw.owner.root.AddChildren(tmp)
 	return tmp
 }

@@ -54,10 +54,10 @@ type Card struct {
 	*valuedWidget
 }
 
-func NewCard(content string) *Card {
-	return NewCardWithTitle("", content)
+func createCard(content string) *Card {
+	return createCardWithTitle("", content)
 }
-func NewCardWithTitle(title string, content string) *Card {
+func createCardWithTitle(title string, content string) *Card {
 	card := Card{valuedWidget: newReadonlyWidget("card", content)}
 	card.e.Set("title", title)
 	card.e.AddChildren(newEmptyWidget(card.e.Eid()+"_A", "card_action"))
@@ -100,7 +100,7 @@ type Drawer struct {
 	*valuedWidget
 }
 
-func NewDrawer(header string) *Drawer {
+func createDrawer(header string) *Drawer {
 	d := &Drawer{newValuedWidget("drawer", false)}
 	d.e.Set("header", header)
 	return d
@@ -131,7 +131,7 @@ type List struct {
 	*valuedWidget
 }
 
-func NewList() *List {
+func createList() *List {
 	list := List{valuedWidget: newValuedWidget("list", "")}
 	return &list
 }
@@ -153,7 +153,7 @@ type ListItem struct {
 	*valuedWidget
 }
 
-func NewListItem(text string) *ListItem {
+func createListItem(text string) *ListItem {
 	list := ListItem{valuedWidget: newReadonlyWidget("list_item", text)}
 	return &list
 }
@@ -169,7 +169,7 @@ type Menu struct {
 	*valuedWidget
 }
 
-func NewMenu(m *menu.Option) *Menu {
+func createMenu(m *menu.Option) *Menu {
 	w := &valuedWidget{e: createElement("menu").Set("root", m)}
 	if m.Value != "" {
 		w.set(m.Value)
@@ -211,7 +211,7 @@ type Row struct {
 	*valuedWidget
 }
 
-func NewRow(items ...IWidget) *Row {
+func createRow(items ...IWidget) *Row {
 	w := &Row{newValuedWidget("row", "")}
 	w.e.AddChildren(items...)
 	return w
@@ -245,7 +245,7 @@ type Table struct {
 	*valuedWidget
 }
 
-func NewTable(data interface{}) *Table {
+func createTable(data interface{}) *Table {
 	cols, realData := parseColsAndData(data)
 	if cols == nil || realData == nil {
 		panic("invalid data format")
@@ -365,7 +365,7 @@ type Tab struct {
 	widgets  map[string]IWidget
 }
 
-func NewTab() *Tab {
+func createTab() *Tab {
 	ret := &Tab{valuedWidget: newReadonlyWidget("tab", ""), widgets: make(map[string]IWidget)}
 	ret.e.Set("place", "top")
 	ret.onValChange(func(v any) {
