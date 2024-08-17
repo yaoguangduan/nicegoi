@@ -88,14 +88,14 @@ func openBrowser(url string) error {
 	return exec.Command(cmd, args...).Start()
 }
 
-//go:embed index.html
+//go:embed content
 var webFile embed.FS
 
 var webContent []byte
 var webLoad sync.Once
 
 func loadContent() {
-	file, err := webFile.ReadFile("index.html")
+	file, err := webFile.ReadFile("content")
 	if err != nil {
 		panic(err)
 	}
