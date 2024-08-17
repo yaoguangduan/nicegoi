@@ -3,13 +3,12 @@ package nicegoi
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/yaoguangduan/nicegoi/option/menu"
 	"github.com/yaoguangduan/nicegoi/option/timeline"
+	"github.com/yaoguangduan/nicegoi/util"
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 )
@@ -195,19 +194,11 @@ func (p *pageInstance) SetNewMsgHandler(f func(id string, cmd string, data any))
 }
 
 func (p *pageInstance) RouteTo(name string, data map[string]any) {
-	if data == nil {
-		p.SendMessage("EID0", "route", map[string]any{"name": name})
-	} else {
-		v4, err := uuid.NewGen().NewV4()
-		if err != nil {
-			log.Println("new v4 err:", err)
-			return
-		}
-		v4s := v4.String()
-		uid := v4s[0:strings.Index(v4s, "-")]
+	uid := util.GenUUID()
+	if data != nil {
 		pageQueryData[uid] = data
-		p.SendMessage("EID0", "route", map[string]any{"name": name, "uuid": uid})
 	}
+	p.SendMessage("EID0", "route", map[string]any{"name": name, "uuid": uid})
 }
 func findElement(element *element, id string) *element {
 	if element.Id == id {
