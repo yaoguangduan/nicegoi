@@ -20,8 +20,9 @@ type IPage interface {
 
 func addPage(pages ...IPage) {
 	for _, p := range pages {
-		pageList = append(pageList, p)
-
+		if p != nil {
+			pageList = append(pageList, p)
+		}
 	}
 }
 
