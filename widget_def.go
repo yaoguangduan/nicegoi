@@ -1,4 +1,4 @@
-package nice
+package nicegoi
 
 type IWidget interface {
 	element() *element
@@ -11,8 +11,8 @@ type emptyWidget struct {
 func (w *emptyWidget) element() *element {
 	return w.opt
 }
-func (w *emptyWidget) Page() *pageWidget {
-	return w.opt.Page.delegate
+func (w *emptyWidget) Ctx() HandlerContext {
+	return w.opt.ctx
 }
 
 func newEmptyWidget(eid string, kind string) IWidget {
@@ -31,8 +31,8 @@ type valuedWidget struct {
 func (vw *valuedWidget) element() *element {
 	return vw.e
 }
-func (vw *valuedWidget) Page() *pageWidget {
-	return vw.e.Page.delegate
+func (vw *valuedWidget) Ctx() HandlerContext {
+	return vw.e.ctx
 }
 func (vw *valuedWidget) addMsgHandler(f func(message *Message)) *valuedWidget {
 	vw.e.Handlers = append(vw.e.Handlers, f)

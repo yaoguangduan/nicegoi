@@ -1,4 +1,4 @@
-package nice
+package nicegoi
 
 import (
 	"embed"
@@ -30,12 +30,12 @@ func start(p string) {
 	mux.HandleFunc("/api/page", func(w http.ResponseWriter, r *http.Request) {
 		uuid := r.URL.Query().Get("uuid")
 		route := r.URL.Query().Get("route")
-		var pg = pageMgr.getOrCreate(strings.TrimPrefix(route, "/"), uuid)
+		var pg = pageInstMgr.getOrCreate(strings.TrimPrefix(route, "/"), uuid)
 		if pg == nil {
 			w.WriteHeader(200)
-			write, err := w.Write([]byte("{\"error\":\"page not found\"}"))
+			write, err := w.Write([]byte("{\"error\":\"pageInstance not found\"}"))
 			if err != nil {
-				log.Println("page not found ret write err:", write, err)
+				log.Println("pageInstance not found ret write err:", write, err)
 			}
 			return
 		}

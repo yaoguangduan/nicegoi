@@ -1,24 +1,29 @@
 package main
 
 import (
-	"github.com/yaoguangduan/nicegoi/goi"
-	"github.com/yaoguangduan/nicegoi/nice"
+	"github.com/yaoguangduan/nicegoi"
 )
 
-func home(ctx nice.GoiContext) []nice.IWidget {
-	input := goi.Input(nil)
-	button := goi.Button("Click Me", func(self *nice.Button) {
+type Home struct {
+}
+
+func (t *Home) Name() string {
+	return ""
+}
+
+func (t *Home) Layout(ctx nicegoi.PageContext) {
+	input := ctx.Input(nil)
+	btn := ctx.Button("Click Me!", func(self *nicegoi.Button) {
 		is := input.GetValue()
 		if is == "" {
-			self.Page().MsgInfo("hello world")
+			self.Ctx().MsgInfo("hello world")
 		} else {
-			self.Page().MsgSuccess("hello " + is)
+			self.Ctx().MsgSuccess("hello " + is)
 		}
 	})
-	v := goi.Box().Vertical().AddItems(input, button)
-	return []nice.IWidget{v}
+	ctx.Box(input, btn).Vertical()
 }
 
 func main() {
-	goi.Run(home)
+	nicegoi.Run(new(Home))
 }

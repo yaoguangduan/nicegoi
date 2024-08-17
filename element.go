@@ -1,7 +1,7 @@
-package nice
+package nicegoi
 
 import (
-	"github.com/yaoguangduan/nicegoi/nice/util"
+	"github.com/yaoguangduan/nicegoi/util"
 	"maps"
 	"slices"
 )
@@ -15,9 +15,10 @@ type element struct {
 	Id       string               `json:"eid"`
 	Kind     string               `json:"type"`
 	Elements []*element           `json:"elements"`
-	Page     *page                `json:"-"`
+	Page     *pageInstance        `json:"-"`
 	W        IWidget              `json:"-"`
 	Handlers []func(msg *Message) `json:"-"`
+	ctx      HandlerContext
 }
 
 func createElement(kind string) *element {
@@ -122,6 +123,9 @@ func (e *element) AddChildren(cc ...IWidget) {
 	added := make([]any, 0)
 	for _, c := range cc {
 		ce := c.element()
+		if ce.Par != nil {
+			ce.Par.RemoveChildren(c)
+		}
 		ce.Par = e
 		added = append(added, ce)
 		e.Elements = append(e.Elements, ce)
@@ -148,7 +152,9 @@ func (e *element) RemoveChildrenByIndex(ii ...uint32) {
 		removed = append(removed, eid)
 		e.Elements = append(e.Elements[:idx], e.Elements[idx+1:]...)
 	}
-	e.Page.SendMessage(e.Id, "remove", removed)
+	if e.Page != nil {
+		e.Page.SendMessage(e.Id, "remove", removed)
+	}
 }
 func (e *element) RemoveChildren(cc ...IWidget) {
 	if e.Elements == nil {

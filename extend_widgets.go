@@ -1,10 +1,10 @@
-package nice
+package nicegoi
 
 import (
 	"fmt"
-	"github.com/yaoguangduan/nicegoi/nice/icons"
-	"github.com/yaoguangduan/nicegoi/nice/option"
-	"github.com/yaoguangduan/nicegoi/nice/option/menu"
+	"github.com/yaoguangduan/nicegoi/icons"
+	"github.com/yaoguangduan/nicegoi/option"
+	"github.com/yaoguangduan/nicegoi/option/menu"
 	"reflect"
 	"strings"
 )
@@ -15,7 +15,7 @@ type Box struct {
 	*valuedWidget
 }
 
-func NewBox(elements ...IWidget) *Box {
+func createBox(elements ...IWidget) *Box {
 	row := Box{valuedWidget: newValuedWidget("box", "")}
 	row.e.Set("align", "center")
 	row.e.AddChildren(elements...)

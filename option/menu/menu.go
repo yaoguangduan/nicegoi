@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"github.com/yaoguangduan/nicegoi/nice/icons"
+	"github.com/yaoguangduan/nicegoi/icons"
 )
 
 type Option struct {

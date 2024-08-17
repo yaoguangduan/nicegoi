@@ -1,4 +1,4 @@
-package nice
+package nicegoi
 
 type Message struct {
 	Eid  string `json:"eid"`

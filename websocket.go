@@ -1,4 +1,4 @@
-package nice
+package nicegoi
 
 import (
 	"github.com/gorilla/websocket"
@@ -46,9 +46,9 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uuid := r.URL.Query().Get("uuid")
-	pg := pageMgr.getOrCreate("           ", uuid)
+	pg := pageInstMgr.getOrCreate("           ", uuid)
 	if pg == nil {
-		log.Printf("ERROR:can not find page of %s,no src websocket\n", uuid)
+		log.Printf("ERROR:can not find pageInstance of %s,no src websocket\n", uuid)
 		_ = conn.Close()
 		return
 	}

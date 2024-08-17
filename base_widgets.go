@@ -1,9 +1,9 @@
-package nice
+package nicegoi
 
 import (
-	"github.com/yaoguangduan/nicegoi/nice/icons"
-	"github.com/yaoguangduan/nicegoi/nice/option"
-	"github.com/yaoguangduan/nicegoi/nice/option/timeline"
+	"github.com/yaoguangduan/nicegoi/icons"
+	"github.com/yaoguangduan/nicegoi/option"
+	"github.com/yaoguangduan/nicegoi/option/timeline"
 	"time"
 )
 
@@ -98,7 +98,7 @@ func (gb *Link) Underlined() *Link {
 	return gb
 }
 
-func NewLink(text string) *Link {
+func createLink(text string) *Link {
 	btn := &Link{valuedWidget: newReadonlyWidget("link", text)}
 	btn.addMsgHandler(func(msg *Message) {
 		if btn.onClick != nil {
@@ -148,7 +148,7 @@ func (gb *Button) Loading(loading bool) *Button {
 	gb.e.SetAttr("loading", loading)
 	return gb
 }
-func NewButton(text string, onClick func(self *Button)) *Button {
+func createButton(text string, onClick func(self *Button)) *Button {
 	btn := &Button{valuedWidget: newReadonlyWidget("button", text), onClick: onClick}
 	btn.addMsgHandler(func(msg *Message) {
 		if btn.onClick != nil {
