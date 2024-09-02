@@ -36,9 +36,9 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 	card.AddActions(ctx.Link("card Action"))
 	card.AddFooters(ctx.Link("add"), ctx.Link("Setting"))
 	card.SetTitle("card title")
-	tab := nicegoi.NewTab().SetPlace(option.Left)
-	loading := nicegoi.NewLoading("loading...")
-	fullLoading := nicegoi.NewLoading("loadingAll...").FullScreen()
+	tab := ctx.Tab().SetPlace(option.Left)
+	loading := ctx.Loading("loading...")
+	fullLoading := ctx.Loading("loadingAll...").FullScreen()
 	disable := ctx.Button("Disable", nil)
 	disable.SetDisable(true)
 
@@ -60,13 +60,12 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 	p0 := ctx.Progress(20)
 
 	l := ctx.List()
-	item1 := nicegoi.NewListItem("list item 1").AddAction(ctx.Link("operate 1").SetOnClick(func(self *nicegoi.Link) {
+	l.NewItem("list item 1").AddAction(ctx.Link("operate 1").SetOnClick(func(self *nicegoi.Link) {
 		self.Ctx().MsgInfo("item 1 operated")
 	}))
-	item2 := nicegoi.NewListItem("list item 2").AddAction(ctx.Link("operate 2").SetOnClick(func(self *nicegoi.Link) {
+	l.NewItem("list item 2").AddAction(ctx.Link("operate 2").SetOnClick(func(self *nicegoi.Link) {
 		self.Ctx().MsgInfo("item 2 operated")
 	}))
-	l.AddItems(item1, item2)
 
 	m := menu.New().AddItems(
 		menu.NewItem("MenuOption 1", "m1").SetIcon(icons.Home).AddItems(menu.NewItem("MenuOption 1-1", "m11"), menu.NewItem("MenuOption 1-2", "m12")),
@@ -310,7 +309,7 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 		l)
 
 	ctx.Divider().SetText("menu")
-	ctx.Box(ctx.H6("menu:"), nicegoi.NewMenu(m).SetOnChange(func(self *nicegoi.Menu, root *menu.Option, item *menu.ItemOption) {
+	ctx.Box(ctx.H6("menu:"), ctx.Menu(m).SetOnChange(func(self *nicegoi.Menu, root *menu.Option, item *menu.ItemOption) {
 		self.Ctx().MsgWarn("menu selected:" + item.Value)
 		v4, err := uuid.NewGen().NewV4()
 		if err == nil {
@@ -344,7 +343,7 @@ func (mai *Main) Layout(ctx nicegoi.PageContext) {
 	ctx.Divider().SetText("table")
 	ctx.Box(
 		ctx.H6("table:"),
-		nicegoi.NewTable([]interface{}{menu.NewItem("label1", "value1"), menu.NewItem("label2", "value2")}),
+		ctx.Table([]interface{}{menu.NewItem("label1", "value1"), menu.NewItem("label2", "value2")}),
 	)
 
 	ctx.Divider().SetText("loading")

@@ -149,6 +149,12 @@ func (w *List) RemoveItemByIdx(idx int) {
 	w.e.RemoveChildrenByIndex(uint32(idx))
 }
 
+func (w *List) NewItem(text string) *ListItem {
+	item := createListItem(text)
+	w.AddItems(item)
+	return item
+}
+
 type ListItem struct {
 	*valuedWidget
 }
